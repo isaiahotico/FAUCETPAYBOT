@@ -8,24 +8,32 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <!-- Ad SDKs -->
+    
+    <!-- AdTerra / Monetag SDKs -->
     <script src='//libtl.com/sdk.js' data-zone='10555663' data-sdk='show_10555663'></script>
     <script src='//libtl.com/sdk.js' data-zone='10555746' data-sdk='show_10555746'></script>
+    
     <style>
         :root { --main-bg: #0f172a; --accent-color: #3b82f6; }
-        body { background-color: var(--main-bg); transition: 0.3s; overflow-x: hidden; }
+        body { background-color: var(--main-bg); transition: 0.3s; overflow-x: hidden; color: white; }
         .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
         .hidden-section { display: none; }
-        @keyframes pulse-glow { 0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); } 70% { transform: scale(1.05); box-shadow: 0 0 0 15px rgba(59, 130, 246, 0); } 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); } }
-        .claim-btn-animate { animation: pulse-glow 2s infinite; }
+        .banned-overlay { display:none; position:fixed; inset:0; background:black; z-index:9999; flex-direction:column; align-items:center; justify-content:center; text-align:center; }
     </style>
 </head>
-<body class="text-white min-h-screen font-sans">
+<body class="min-h-screen font-sans">
+
+    <!-- Banned Screen -->
+    <div id="banned-screen" class="banned-overlay p-10">
+        <h1 class="text-6xl mb-4">🚫</h1>
+        <h2 class="text-3xl font-black text-red-500">ACCOUNT BANNED</h2>
+        <p class="mt-4 text-gray-400">You have been restricted for violating our terms of service.</p>
+    </div>
 
     <!-- Header -->
     <header class="p-4 glass flex justify-between items-center sticky top-0 z-50">
         <div>
-            <p id="tg-username" class="text-xs font-bold text-blue-400">@Guest</p>
+            <p id="tg-username" class="text-xs font-bold text-blue-400">@Loading...</p>
             <h1 class="text-xl font-black tracking-tighter">PAPERHOUSE CORP</h1>
         </div>
         <div class="text-right">
@@ -33,123 +41,100 @@
         </div>
     </header>
 
-    <main id="main-content" class="p-4 pb-24">
+    <main id="main-app" class="p-4 pb-24">
         <!-- Stats Card -->
         <div class="grid grid-cols-2 gap-4 mb-6">
             <div class="glass p-4 rounded-2xl text-center border-b-4 border-blue-500">
-                <p class="text-gray-400 text-[10px] uppercase font-bold">Your Balance</p>
-                <p class="text-2xl font-black text-white" id="user-balance">0.00000</p>
-                <p class="text-[10px] text-blue-400 font-bold">USDT</p>
+                <p class="text-gray-400 text-[10px] uppercase font-bold">Balance</p>
+                <p class="text-2xl font-black" id="user-balance">0.00000</p>                <p class="text-[10px] text-blue-400 font-bold">USDT</p>
             </div>
             <div class="glass p-4 rounded-2xl text-center">
-
-                <p class="text-gray-400 text-[10px] uppercase font-bold">Community</p>
+                <p class="text-gray-400 text-[10px] uppercase font-bold">Total Users</p>
                 <p class="text-2xl font-black" id="total-users">0</p>
-                <p class="text-[10px] text-gray-500">Total Users</p>
             </div>
         </div>
 
-        <!-- Ad Tasks Section -->
+        <!-- Ads -->
         <div class="space-y-4 mb-8">
-            <h3 class="text-xs font-bold text-gray-400 uppercase ml-1">Available Tasks</h3>
-            <button onclick="startAdTimer('PREMIUM ADS 1')" id="adBtn1" class="w-full bg-blue-600 hover:bg-blue-700 py-5 rounded-2xl font-black shadow-lg transform active:scale-95 transition flex items-center justify-center gap-3">
-                <span>💎</span> PREMIUM ADS 1
+            <button onclick="handleAdClick('PREMIUM ADS 1')" id="adBtn1" class="w-full bg-blue-600 py-5 rounded-2xl font-black shadow-lg flex items-center justify-center gap-3">
+                💎 PREMIUM ADS 1
             </button>
-            <button onclick="startAdTimer('TURBO ADS 2')" id="adBtn2" class="w-full bg-indigo-600 hover:bg-indigo-700 py-5 rounded-2xl font-black shadow-lg transform active:scale-95 transition flex items-center justify-center gap-3">
-                <span>⚡</span> TURBO ADS 2
+            <button onclick="handleAdClick('TURBO ADS 2')" id="adBtn2" class="w-full bg-indigo-600 py-5 rounded-2xl font-black shadow-lg flex items-center justify-center gap-3">
+                ⚡ TURBO ADS 2
             </button>
-            <p id="cooldown-timer" class="text-center text-red-400 font-bold text-sm hidden bg-red-900/20 py-2 rounded-lg"></p>
+            <p id="cooldown-timer" class="text-center text-red-400 font-bold text-sm hidden"></p>
         </div>
 
         <!-- Referral -->
         <div class="glass p-5 rounded-2xl mb-6">
-            <div class="flex justify-between items-center mb-3">
-                <h2 class="font-bold text-sm">Referral (12% Bonus)</h2>
-                <span class="text-[10px] bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded">Active</span>
-            </div>
+            <h2 class="font-bold text-sm mb-3">Referral (12% Bonus)</h2>
             <div class="flex gap-2 mb-4">
-                <input type="text" id="referral-input" placeholder="Enter Code" class="bg-black/40 border border-white/10 rounded-xl p-3 flex-1 text-sm focus:outline-none focus:border-blue-500">
-                <button onclick="applyReferral()" class="bg-white text-black px-6 rounded-xl font-bold text-sm">Apply</button>
+                <input type="text" id="referral-input" placeholder="Paste Code" class="bg-black/40 border border-white/10 rounded-xl p-3 flex-1 text-sm outline-none">
+                <button onclick="applyReferral()" class="bg-white text-black px-6 rounded-xl font-bold">Apply</button>
             </div>
-            <div class="flex justify-between text-[11px] font-medium bg-white/5 p-3 rounded-xl">
-                <span>My Code: <b id="my-ref-code" class="text-blue-400">...</b></span>
-                <span>Referrals: <b id="ref-count" class="text-blue-400">0</b></span>
+            <div class="flex justify-between text-[11px] bg-white/5 p-3 rounded-xl">
+                <span>Code: <b id="my-ref-code" class="text-blue-400">...</b></span>
+                <span>Referrals: <b id="ref-count">0</b></span>
             </div>
         </div>
 
-        <!-- Withdrawal -->
+        <!-- Withdraw -->
         <div class="glass p-5 rounded-2xl mb-6">
-            <h2 class="font-bold text-sm mb-4">Withdraw Funds</h2>
-            <select id="wd-method" class="w-full bg-black/40 border border-white/10 rounded-xl p-3 mb-3 text-sm outline-none">
+            <h2 class="font-bold text-sm mb-4">Withdrawal</h2>
+            <select id="wd-method" class="w-full bg-black/40 border border-white/10 rounded-xl p-3 mb-2 text-sm">
                 <option value="gcash">GCash</option>
                 <option value="faucetpay">FaucetPay</option>
                 <option value="paypal">PayPal</option>
             </select>
-            <input type="text" id="wd-address" placeholder="Wallet Address / Number" class="w-full bg-black/40 border border-white/10 rounded-xl p-3 mb-4 text-sm outline-none">
-            <button onclick="requestWithdraw()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-black py-4 rounded-xl shadow-lg">WITHDRAW (MIN 0.02)</button>
-            
-            <div class="mt-6">
-                <p class="text-[10px] font-bold uppercase text-gray-500 mb-2">Transaction History</p>
-                <div id="wd-history" class="text-[10px] space-y-2"></div>
-            </div>
+            <input type="text" id="wd-address" placeholder="Account Details" class="w-full bg-black/40 border border-white/10 rounded-xl p-3 mb-4 text-sm">
+            <button onclick="requestWithdraw()" class="w-full bg-blue-600 text-white font-black py-4 rounded-xl">WITHDRAW (MIN 0.02)</button>
+            <div id="wd-history" class="mt-4 space-y-2 text-[10px]"></div>
         </div>
 
         <!-- Customization -->
         <div class="glass p-5 rounded-2xl mb-6 flex justify-between items-center">
-            <h2 class="font-bold text-sm">Theme Settings</h2>
+            <h2 class="font-bold text-sm text-gray-400">Personalize</h2>
             <div class="flex gap-3">
-                <input type="color" id="bg-color-picker" onchange="updateTheme()" class="h-8 w-8 rounded-lg bg-transparent border-none cursor-pointer">
-                <input
-
-type="color" id="accent-color-picker" onchange="updateTheme()" class="h-8 w-8 rounded-lg bg-transparent border-none cursor-pointer">
+                <input type="color" id="bg-picker" onchange="updateTheme()" class="h-8 w-8 bg-transparent">
+                <input type="color" id="accent-picker" onchange="updateTheme()" class="h-8 w-8 bg-transparent">
             </div>
         </div>
 
-        <!-- Admin -->
-        <div id="admin-panel" class="hidden-section glass border-2 border-red-500/30 p-5 rounded-2xl mb-6">
-            <h2 class="text-red-500 font-black mb-4 flex items-center gap-2">🛡️ ADMIN CONSOLE</h2>
-            <div id="admin-requests" class="space-y-3 text-[11px]"></div>
+        <!-- Admin Section -->
+        <div id="admin-panel" class="hidden-section border-t-4 border-red-600 pt-6">
+            <h2 class="text-xl font-black text-red-500 mb-4">ADMIN DASHBOARD</h2>
+            
+            <div class="bg-red-900/20 p-4 rounded-xl mb-6">
+                <h3 class="font-bold mb-2">Pending Withdrawals</h3>
+                <div id="admin-withdrawals" class="space-y-3"></div>
+            </div>
+
+            <div class="bg-slate-800 p-4 rounded-xl">
+                <h3 class="font-bold mb-2">User Management (Ban)</h3>
+                <div id="admin-users"class="max-h-60 overflow-y-auto space-y-2"></div>
+            </div>
         </div>
     </main>
 
-    <!-- Footer -->
-    <footer class="fixed bottom-0 w-full glass p-3 text-center text-[10px] text-gray-500 z-40">
-        <p id="footer-date-time" class="mb-1 text-gray-300 font-mono"></p>
-        <p>PAPERHOUSE CORPORATION v2.1 • STABLE</p>
-    </footer>
-
     <!-- Ad Overlay -->
     <div id="ad-overlay" class="fixed inset-0 bg-slate-950 z-[100] hidden flex-col items-center justify-center text-center p-8">
-        <div id="ad-timer-container" class="w-full max-w-xs">
-            <h2 class="text-xl font-bold mb-2" id="ad-title">Processing Ad...</h2>
-            <p class="text-gray-400 text-sm mb-8">Do not minimize the app</p>
-            
-            <!-- Timer Circle -->
-            <div class="relative w-40 h-40 mx-auto mb-10">
-                <svg class="w-full h-full transform -rotate-90">
-                    <circle cx="80" cy="80" r="70" stroke="currentColor" stroke-width="8" fill="transparent" class="text-gray-800"/>
-                    <circle id="progress-circle" cx="80" cy="80" r="70" stroke="currentColor" stroke-width="8" fill="transparent" stroke-dasharray="440" stroke-dashoffset="440" class="text-blue-500 transition-all duration-1000"/>
-                </svg>
-                <div class="absolute inset-0 flex items-center justify-center">
-                    <span id="timer-display" class="text-5xl font-black">20</span>
-                </div>
-            </div>
+        <div id="ad-timer-container">
+            <h2 class="text-xl font-bold mb-2" id="ad-title">Watching...</h2>
+            <div class="text-6xl font-black my-10" id="timer-display">20</div>
         </div>
-
-        <!-- Claim Area -->
-        <div id="claim-area" class="hidden w-full max-w-xs">
-            <div class="mb-6">
-                <div class="w-20 h-20 bg-green-500/20 text-green-500 rounded-full flex items-center justify-center mx-auto text-4xl mb-4">✔</div>
-                <h2 class="text-2xl font-black text-white">Task Finished!</h2>
-                <p class="text-gray-400 text-sm">Your reward is ready to be claimed.</p>
-            </div>
-            <button onclick="claimReward()" class="w-full bg-green-500 hover:bg-green-600 text-white font-black py-5 rounded-2xl shadow-xl claim-btn-animate text-lg">
+        <div id="claim-area" class="hidden">
+            <button onclick="claimReward()" class="bg-green-500 text-white font-black px-12 py-6 rounded-2xl text-xl shadow-2xl animate-bounce">
                 CLAIM 0.00014 USDT
             </button>
         </div>
     </div>
 
-    <!-- Audio -->
+    <!-- Footer -->
+    <footer class="fixed bottom-0 w-full glass p-3 text-center text-[10px] text-gray-500">
+        <p id="footer-date-time"></p>
+        <p>PAPERHOUSE CORPORATION • ADMIN: AIzaSyBw...app</p>
+    </footer>
+
     <audio id="rewardSound" src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3"></audio>
 
     <script src="app.js"></script>
