@@ -196,38 +196,58 @@ function loadHistory() {
 }
 
 // Admin Logic
-function loadAdminData() {
-    db.ref('payouts').on('value', snap => {
-        let h = '';
-        snap.forEach(c => {
-            let d = c.val();
-            if(d.status === 'pending') {
-                h += `<div class="bg-slate-900 p-3 rounded-lg border border-red-900/30 text-xs">
-                    <p><b>${d.user}</b> (${d.method})</p>   <div class="flex justify-between font-black text-white"><span>${d.amount} USDT</span><span>${d.method}</span></div>
-                    <p class="text-slate-400">${d.account}</p>
-                    <div class="mt-2 flex gap-2">
-                        <button onclick="updateWd('${c.key}', 'approved')" class="bg-green-600 px-3 py-1 rounded">Approve</button>
-                        <button onclick="updateWd('${c.key}', 'denied')" class="bg-red-600 px-3 py-1 rounded">Deny</button>
-                    </div>
-                </div>`;
-            }
+// Admin Functions
+function accessAdmin() {
+    if(prompt("Enter Admin Key:") === "Propetas12") { // Replace "Propetas12" with your actual secure password
+        showSection('admin');
+        db.ref('payouts').on('value', snap => {
+            let h = '';
+            snap.forEach(c => {
+                let d = c.val();
+                if(d.status === 'pending') {
+                    h += `<div class="bg-zinc-900 p-5 rounded-2xl border-l-4 border-red-600 text-[11px] space-y-1">
+                        <div class="flex justify-between font-black text-white"><span>${d.amount} USDT</span><span>${d.method}</span></div>
+                        <p>User: @${d.user} (ID: ${d.uid})</p>
+                        <p>Name: ${d.name}</p><p>Email: ${d.email}</p><p>Account: ${d.acc}</p>
+                        <p class="text-zinc-500 pt-2">${d.date}</p>
+                        <div class="flex gap-2 pt-4">
+                            <button onclick="updateWd('${c.key}', 'approved')" class="flex-1 bg-green-600 py-2 rounded-lg font-bold">APPROVE</button>
+                            <button onclick="updateWd('${c.key}', 'denied')" class="flex-1 bg-zinc-800 py-2 rounded-lg font-bold">DENY</button>
+                        </div>
+                    </div>`;
+                }
+            });
+            document.getElementById('adminList').innerHTML = h || "No pending requests found.";
         });
-        document.getElementById('adminWithdrawals').innerHTML = h || "No pending requests";
-    });
+    } else {
+        alert("Access Denied: Incorrect Key.");
+    }
 }
 
 function updateWd(key, status) {
     if(status === 'denied') {
+        // Return funds to user if denied
         db.ref('payouts/' + key).once('value', s => {
-            db.ref('users/' + s.val().uid).transaction(u => {
-                if(u) u.balance += s.val().amount;
-                return u;
+            db.ref('users/' + s.val().uid).transaction(u => { 
+                if(u) u.balance = (u.balance || 0) + 0.02; 
+                return u; 
             });
         });
     }
     db.ref('payouts/' + key).update({ status: status });
 }
 
+function banUser() {
+    const id = document.getElementById('banId').value.trim();
+    if(id) {
+        if(confirm(`Are you sure you want to permanently ban user ID: ${id}?`)) {
+            db.ref('users/' + id).update({ banned: true });
+            alert("User banned successfully.");
+        }
+    } else {
+        alert("Please enter a User ID to ban.");
+    }
+}
 function processBan() {
     const bid = document.getElementById('banId').value;
     if(bid) {
