@@ -7,212 +7,197 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <!-- Ad SDKs -->
     <script src='//libtl.com/sdk.js' data-zone='10555663' data-sdk='show_10555663'></script>
     <script src='//libtl.com/sdk.js' data-zone='10555746' data-sdk='show_10555746'></script>
-    <script src='//libtl.com/sdk.js' data-zone='10555727' data-sdk='show_10555727'></script>
     <script src="https://pl28917645.effectivegatecpm.com/3a/6c/94/3a6c94eafdbe1b9ca34a971e7e5a12dd.js"></script>
     </style><script>(function(s){s.dataset.zone='10601128',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
   <script>(function(s){s.dataset.zone='10601128',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script><script>(function(s){s.dataset.zone='10601128',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
     <script>(function(s){s.dataset.zone='10109465',s.src='https://groleegni.net/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
     <script>(function(s){s.dataset.zone='10800165',s.src='https://n6wxm.com/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
-  
-    <style>
-        :root { --main-bg: #050505; --accent: #2563eb; }
-        body { background-color: var(--main-bg); color: white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; transition: 0.3s; overflow-x: hidden; }
-        .sidebar { transition: 0.4s; left: -300px; width: 280px; z-index: 1000; height: 100vh; position: fixed; }
-        .sidebar.active { left: 0; }
-        .glass { background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,0.1); }
-        .section-content { display: none; }
-        .section-active { display: block; }
-        .status-online { width: 8px; height: 8px; background: #10b981; border-radius: 50%; display: inline-block; box-shadow: 0 0 8px #10b981; }
-    </style>
-</head>
-<body>
-
-    <!-- Sliding Menu -->
-    <div id="sidebar" class="sidebar bg-zinc-950 border-r border-zinc-800 p-6 shadow-2xl">
-        <h2 class="text-xl font-black text-blue-500 italic mb-8 border-b border-zinc-800 pb-4">PAPERHOUSE</h2>
-        <nav class="space-y-3 text-sm font-semibold">
-            <button onclick="showSection('home')" class="w-full text-left p-3 hover:bg-zinc-900 rounded-lg transition"><i class="fas fa-rocket mr-3 text-blue-500"></i> Dashboard</button>
-            <button onclick="showSection('withdraw')" class="w-full text-left p-3 hover:bg-zinc-900 rounded-lg transition"><i class="fas fa-wallet mr-3 text-green-500"></i> Withdraw USDT</button>
-            <button onclick="showSection('referral')" class="w-full text-left p-3 hover:bg-zinc-900 rounded-lg transition"><i class="fas fa-user-plus mr-3 text-purple-500"></i> Referrals</button>            <button onclick="showSection('online')" class="w-full text-left p-3 hover:bg-zinc-900 rounded-lg transition"><i class="fas fa-users-viewfinder mr-3 text-emerald-500"></i> Online Members</button>
-            <button onclick="showSection('settings')" class="w-full text-left p-3 hover:bg-zinc-900 rounded-lg transition"><i class="fas fa-palette mr-3 text-pink-500"></i> Appearance</button>
-            <div class="pt-10">
-                <button onclick="accessAdmin()" class="w-full text-left p-3 bg-red-950/20 text-red-500 rounded-lg border border-red-900/30"><i class="fas fa-shield-halved mr-3"></i> ADMIN CONSOLE</button>
-            </div>
-        </nav>
-    </div>
-    
-
-    <!-- Header -->
-    <header class="glass sticky top-0 z-50 p-4 flex justify-between items-center">
-        <div class="flex items-center gap-3">
-            <button onclick="toggleSidebar()" class="text-2xl p-1 text-blue-500"><i class="fas fa-bars-staggered"></i></button>
-            <div>
-                <p id="topUsername" class="text-sm font-black">@loading...</p>
-                <p class="text-[9px] uppercase tracking-widest text-zinc-500">Global Network Active</p>
-            </div>
-        </div>
-        <div class="text-right">
-            <p id="userBalance" class="text-lg font-black text-green-500">0.00000</p>
-            <p class="text-[8px] uppercase text-zinc-500 font-bold">Available USDT</p>
-        </div>
-    </header>
-
-    <main class="p-4 max-w-lg mx-auto pb-32">
-        <!-- Live Counters -->
-        <div class="grid grid-cols-2 gap-3 mb-6">
-            <div class="bg-zinc-900 p-3 rounded-2xl border border-zinc-800 text-center">
-                <p class="text-[9px] text-zinc-500 uppercase font-bold">Registered Users</p>
-                <p id="totalUsers" class="text-lg font-black">0</p>
-            </div>
-            <div class="bg-zinc-900 p-3 rounded-2xl border border-zinc-800 text-center">
-                <p class="text-[9px] text-zinc-500 uppercase font-bold">Online Now</p>
-                <p id="onlineUsersCount" class="text-lg font-black text-green-500">0</p>
-            </div>            <div class="col-span-2 bg-gradient-to-r from-blue-900/20 to-transparent p-3 rounded-2xl border border-blue-900/20 flex justify-between items-center px-6">
-                <p class="text-[10px] font-bold text-zinc-400">TOTAL COMMUNITY INCOME</p>
-                <p id="totalGlobalIncome" class="text-sm font-black text-blue-400">0.0000 USDT</p>
-            </div>
-        </div>
-
-        <!-- Home Section -->
-        <section id="homeSection" class="section-content section-active">
-            <div class="bg-zinc-900 p-6 rounded-3xl border border-zinc-800">
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-[11px] font-black text-zinc-500 uppercase tracking-widest">SENTINEL DAEHAEMOTH AREA</h3>
-                    <span class="bg-blue-600/20 text-blue-500 text-[10px] px-3 py-1 rounded-full font-bold"><span id="clickCount">0</span>/3000</span>
-                </div>
-                <button onclick="startAd()" class="w-full bg-blue-600 hover:bg-blue-500 py-5 rounded-2xl font-black mb-4 flex justify-between px-6 items-center shadow-lg transition-transform active:scale-95">
-                    <span>PREMIUM ADS 1</span> <i class="fas fa-crown"></i>
-                </button>
-                <button onclick="startAd()" class="w-full bg-zinc-800 hover:bg-zinc-700 py-5 rounded-2xl font-black flex justify-between px-6 items-center shadow-lg transition-transform active:scale-95">
-                    <span>TURBO ADS 2</span> <i class="fas fa-bolt text-yellow-500"></i></button>
-                <p id="cooldownText" class="hidden text-center mt-4 text-red-500 text-xs font-bold animate-pulse">Wait 5 minutes for next batch...</p>
-            </div>
-        </section>
-        <!-- News/Update Ticker -->
+  <!-- News/Update Ticker -->
             <div class="bg-blue-600/20 border border-blue-500/30 p-3 rounded-xl mb-6 flex items-center gap-3">
                 <i class="fa fa-bullhorn text-blue-400 animate-bounce"></i>
                 <marquee class="text-[10px] font-bold uppercase tracking-wider">Welcome to Our EARNING PLATFORM! Minimum withdrawal is 0.02 USDT.PLEASE INVITE MORE EVERYONE,IT MAKES YOUR EARNINGS BE ON SCHEDULE ON OUR WITHDRAWAL LISTS!Take care always! </marquee>
             </div>
         </div> 
-        <!-- Online List Section -->
-        <section id="onlineSection" class="section-content">
-            <div class="bg-zinc-900 p-6 rounded-3xl border border-zinc-800">
-                <h3 class="text-xs font-black text-zinc-500 uppercase mb-4 tracking-tighter">Active Users (Updates Live)</h3>
-                <div id="onlineList" class="space-y-3 max-h-[400px] overflow-y-auto pr-2">
-                    <!-- List items -->
-                </div>
+    <style>
+        :root { --main-bg: #0f172a; --accent: #3b82f6; }
+        body { background-color: var(--main-bg); color: white; transition: 0.3s; font-family: sans-serif; }
+        .sidebar { transition: 0.4s; left: -280px; width: 280px; z-index: 1000; height: 100vh; position: fixed; }
+        .sidebar.active { left: 0; }
+        .glass { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .section-content { display: none; }
+        .section-active { display: block; }
+        .reward-popup { animation: slideUp 0.5s ease-out; }
+        @keyframes slideUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    </style>
+</head>
+<body class="overflow-x-hidden">
+
+    <!-- Sidebar -->
+    <div id="sidebar" class="sidebar bg-slate-900 shadow-2xl p-6 border-r border-slate-800">
+        <h2 class="text-2xl font-black text-blue-500 mb-8 tracking-tighter">PAPERHOUSE</h2>
+        <nav class="space-y-2">
+            <button onclick="showSection('home')" class="w-full text-left p-3 hover:bg-slate-800 rounded-lg transition"><i class="fas fa-play mr-3 text-blue-400"></i> Earn USDT</button>
+            <button onclick="showSection('withdraw')" class="w-full text-left p-3 hover:bg-slate-800 rounded-lg transition"><i class="fas fa-wallet mr-3 text-green-400"></i> Withdrawal</button>
+            <button onclick="showSection('referral')" class="w-full text-left p-3 hover:bg-slate-800 rounded-lg transition"><i class="fas fa-users mr-3 text-purple-400"></i> Referrals</button>            <button onclick="showSection('settings')" class="w-full text-left p-3 hover:bg-slate-800 rounded-lg transition"><i class="fas fa-palette mr-3 text-pink-400"></i> Customize</button>
+            <hr class="border-slate-800 my-4">
+            <button onclick="accessAdmin()" class="w-full text-left p-3 bg-red-900/20 text-red-400 hover:bg-red-900/40 rounded-lg transition border border-red-900/50"><i class="fas fa-lock mr-3"></i> Admin Panel</button>
+        </nav>
+    </div>
+
+    <!-- Header -->
+    <header class="glass sticky top-0 z-50 p-4 flex justify-between items-center">
+        <div class="flex items-center gap-3">
+            <button onclick="toggleSidebar()" class="p-2 bg-slate-800 rounded-lg"><i class="fas fa-bars"></i></button>
+            <div>
+                <h1 class="text-sm font-bold text-blue-400 uppercase tracking-widest">Paperhouse Corp</h1>
+                <p id="topUsername" class="text-xs text-slate-400">@loading...</p>
+            </div>
+        </div>
+        <div class="text-right">
+            <p id="userBalance" class="text-xl font-black text-green-400">0.00000</p>
+            <p class="text-[10px] uppercase text-slate-500 font-bold">USDT Balance</p>
+        </div>
+    </header>
+
+    <main class="p-4 max-w-md mx-auto pb-24">
+        <!-- Stats -->
+        <div class="flex gap-2 mb-6 text-[10px] font-bold">
+            <div class="flex-1 bg-slate-800/50 p-2 rounded-lg border border-slate-700">TOTAL USERS: <span id="totalUsers" class="text-blue-400">0</span></div>
+            <div class="flex-1 bg-slate-800/50 p-2 rounded-lg border border-slate-700">ONLINE: <span id="onlineUsers" class="text-green-400">0</span></div>
+        </div>
+
+        <!-- HOME -->
+        <section id="homeSection" class="section-content section-active">
+            <div class="bg-gradient-to-br from-slate-800 to-slate-900 p-6 rounded-2xl shadow-xl border border-slate-700">
+                <div class="flex justify-between items-end mb-6">
+                    <h2 class="font-bold text-slate-300">ADVERTISING TASKS</h2>
+                    <span class="text-xs text-slate-500"><span id="clickCount" class="text-blue-400">0</span> / 3000 Daily</span>
+                </div>                
+                <button onclick="startTask('PREMIUM')" class="w-full bg-blue-600 hover:bg-blue-500 py-4 rounded-xl font-bold mb-4 flex justify-between px-6 items-center shadow-lg shadow-blue-900/20">
+                    <div class="text-left">
+                        <p class="text-xs opacity-70">Task 01</p>
+                        <p>PREMIUM ADS 1</p>
+                    </div>
+                    <i class="fas fa-crown text-xl"></i>
+                </button>
+
+                <button onclick="startTask('TURBO')" class="w-full bg-indigo-600 hover:bg-indigo-500 py-4 rounded-xl font-bold flex justify-between px-6 items-center shadow-lg shadow-indigo-900/20">
+                    <div class="text-left">
+                        <p class="text-xs opacity-70">Task 02</p>
+                        <p>TURBO ADS 2</p>
+                    </div>
+                    <i class="fas fa-bolt text-xl"></i>
+                </button>
+                <div id="cooldownDiv" class="hidden mt-4 text-center text-red-400 text-sm font-bold animate-pulse">Cooldown: <span id="cdTimer">5:00</span></div>
             </div>
         </section>
 
-        <!-- Referral Section -->
-        <section id="referralSection" class="section-content text-center">
-            <div class="bg-zinc-900 p-8 rounded-3xl border border-zinc-800">
-                <p class="text-[10px] text-blue-500 font-black mb-2 uppercase">Partner Program</p>
-                <h3 class="text-2xl font-black mb-2">12% BONUS</h3>
-                <p class="text-xs text-zinc-500 mb-8">Share your code and earn from every ad your friends watch.</p>
-                <div id="myRefCode" class="bg-black p-5 rounded-2xl border-2 border-dashed border-zinc-700 text-3xl font-mono text-blue-400 mb-8 tracking-widest">------</div>
-                <div class="grid grid-cols-2 gap-4 mb-8">
-                    <div>
-                        <p class="text-[9px] text-zinc-500 uppercase font-bold">Total Referrals</p>
-                        <p id="totalRefs" class="text-xl font-black">0</p>
-                    </div>
-                    <div>
-                        <p class="text-[9px] text-zinc-500 uppercase font-bold">Total Earned</p>
-                        <p id="totalRefEarned" class="text-xl font-black text-green-500">0.00</p>
-                    </div>
-                </div>
-                <div class="flex gap-2">
-                    <input type="text" id="inputRef" placeholder="Paste 6-digit code" class="flex-1 bg-black p-4 rounded-xl text-sm border border-zinc-800 outline-none">
-                    <button onclick="bindReferral()" class="bg-blue-600 px-6 rounded-xl font-bold">BIND</button>
-                </div>
-            </div>
-        </section>
-
-        <!-- Withdraw Section -->
+        <!-- WITHDRAW -->
         <section id="withdrawSection" class="section-content">
-            <div class="bg-zinc-900 p-6 rounded-3xl border border-zinc-800">
-                <h3 class="font-black text-center mb-6 text-zinc-400">PAYOUT REQUEST</h3>
-                <div class="space-y-4">
-                    <input type="text" id="wdName" placeholder="Full Name" class="w-full bg-black p-4 rounded-xl border border-zinc-800 text-sm outline-none">
-                    <input type="email" id="wdEmail" placeholder="Email Address" class="w-full bg-black p-4 rounded-xl border border-zinc-800 text-sm outline-none">
-                    <input type="text" id="wdAccount" placeholder="GCash / Wallet Address" class="w-full bg-black p-4 rounded-xl border border-zinc-800 text-sm outline-none">
-                    <select id="wdMethod" class="w-full bg-black p-4 rounded-xl border border-zinc-800 text-sm">
-                        <option value="GCash">GCash</option>
-                        <option value="FaucetPay">FaucetPay</option>
-                        <option value="PayPal">PayPal</option>
-                    </select>
-                    <button onclick="requestWithdraw()" class="w-full bg-green-600 py-4 rounded-xl font-black shadow-lg">WITHDRAW 0.02 USDT</button>
-                    <p class="text-[9px] text-zinc-600 text-center uppercase font-bold tracking-widest">Manual approvalwithin 24-48 hours</p>
-                </div>
+            <div class="bg-slate-800 p-6 rounded-2xl border border-slate-700 mb-6">
+                <h3 class="font-bold text-lg mb-4">REQUEST PAYOUT</h3>
+                <select id="wdMethod" class="w-full bg-slate-900 p-3 rounded-lg mb-4 border border-slate-700">
+                    <option value="GCash">GCash</option>
+                    <option value="FaucetPay">FaucetPay</option>
+                    <option value="PayPal">PayPal</option>
+                </select>
+                <input type="text" id="wdAccount" placeholder="Wallet Address / Number" class="w-full bg-slate-900 p-3 rounded-lg mb-4 border border-slate-700">
+                <p class="text-[10px] text-slate-500 mb-4 tracking-wider">MINIMUM WITHDRAWAL: 0.02000 USDT</p>
+                <button onclick="requestWithdraw()" class="w-full bg-green-600 py-3 rounded-lg font-bold">WITHDRAW NOW</button>
             </div>
-            <div id="wdHistory" class="mt-6 space-y-2"></div>
+            <div id="wdHistory" class="space-y-2"></div>
         </section>
 
-        <!-- Admin Section -->
-        <section id="adminSection" class="section-content">
-            <div class="bg-red-950/10 border border-red-500/20 p-6 rounded-3xl">
-                <h3 class="text-red-500 font-black mb-6 uppercase italic"><i class="fas fa-lock"></i> Manual Review Terminal</h3>
-                <div id="adminList" class="space-y-4 mb-10">
-                    <!-- Dynamic Withdrawal Cards -->
+        <!-- REFERRAL -->
+        <section id="referralSection" class="section-content">
+            <div class="bg-slate-800 p-6 rounded-2xl text-center border border-slate-700">
+                <h3 class="font-bold mb-2">PARTNER PROGRAM</h3>
+                <p class="text-xs text-slate-400 mb-6">Earn 12% lifetime commission from referral clicks</p>
+                <div id="myRefCode" class="bg-slate-900 p-4 rounded-xl border-2 border-dashed border-slate-700 text-2xl font-mono text-blue-400 mb-6 tracking-widest cursor-pointer">------</div>
+                <div class="flex gap-2 mb-6">
+                    <input type="text" id="inputRef" placeholder="Enter Invite Code" class="flex-1 bg-slate-900 p-3 rounded-lg text-sm border border-slate-700">
+                    <button onclick="submitReferral()" class="bg-blue-600 px-6 rounded-lg font-bold">BIND</button>
                 </div>
-                <div class="bg-zinc-900 p-4 rounded-2xl border border-zinc-800">
-                    <h4 class="text-xs font-bold text-zinc-500 mb-4 uppercase">Ban System</h4>
-                    <div class="flex gap-2">
-                        <input type="text" id="banId" placeholder="User ID" class="flex-1 bg-black p-3 rounded-xl text-xs border border-zinc-800">
-                        <button onclick="banUser()" class="bg-red-600 px-6 rounded-xl text-xs font-bold">BAN</button>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-slate-900 p-3 rounded-lg">
+                        <p class="text-[10px] text-slate-500 uppercase">Total Referrals</p>
+                        <p id="totalRefs" class="text-xl font-bold">0</p>
+                    </div>
+                    <div class="bg-slate-900 p-3 rounded-lg">
+                        <p class="text-[10px] text-slate-500 uppercase">Referral Earnings</p>
+                        <p id="totalRefEarned" class="text-xl font-bold text-yellow-500">0.00</p>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Customization -->
+        <!-- SETTINGS -->
         <section id="settingsSection" class="section-content">
-            <div class="bg-zinc-900 p-6 rounded-3xl border border-zinc-800">
-                <h3 class="font-black mb-6 uppercase text-xs text-zinc-500">UI Settings</h3>
+            <div class="bg-slate-800 p-6 rounded-2xl border border-slate-700">
+                <h3 class="font-bold mb-6">CUSTOMIZATION</h3>
                 <div class="space-y-4">
                     <div>
-                        <label class="text-xs font-bold text-zinc-400 block mb-2">BACKGROUND</label>
-                        <input type="color" id="bgCol" onchange="updateColors()" class="w-full h-12 bg-transparent">
+                        <label class="text-xs text-slate-400 block mb-2">BACKGROUND COLOR</label>
+                        <input type="color" id="colorBg" onchange="updateColors()" class="w-full h-12 bg-transparent">
                     </div>
                     <div>
-                        <label class="text-xs font-bold text-zinc-400 block mb-2">ACCENT COLOR</label>
-                        <input type="color" id="accentCol" onchange="updateColors()" class="w-full h-12 bg-transparent">
+                        <label class="text-xs text-slate-400 block mb-2">ACCENT COLOR</label>
+                        <input type="color" id="colorAccent" onchange="updateColors()" class="w-full h-12 bg-transparent">
                     </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ADMIN -->
+        <section id="adminSection" class="section-content">
+            <div class="bg-red-900/10 border border-red-500/30 p-4 rounded-2xl">
+                <h3 class="text-red-500 font-black mb-4 flex items-center"><i class="fas fa-shield-alt mr-2"></i> MASTER CONTROL</h3>
+                <div id="adminWithdrawals" class="space-y-4 mb-6"></div>
+                <hr class="border-red-900/30 my-6">
+                <h4 class="text-xs font-bold text-slate-400 mb-2">RESTRICT USER</h4><div class="flex gap-2">
+                    <input type="text" id="banId" placeholder="User ID" class="flex-1 bg-slate-900 p-2 rounded text-sm">
+                    <button onclick="processBan()" class="bg-red-600 px-4 rounded text-xs">BAN</button>
                 </div>
             </div>
         </section>
     </main>
 
     <!-- Ad Overlay -->
-    <div id="adModal" class="fixed inset-0 bg-black z-[2000] hidden flex items-center justify-center p-8 text-center">
+    <div id="adModal" class="fixed inset-0 bg-slate-950 z-[2000] hidden flex items-center justify-center p-8 text-center">
         <div>
-            <div id="timerDisplay" class="text-8xl font-black text-blue-600 mb-4">20</div>
-            <p class="text-zinc-500 uppercase tracking-[10px] text-[10px] animate-pulse">Wait for audio signal</p>
-            <div id="claimBtn" class="hidden mt-12">
-                <button onclick="finishTask()" class="bg-green-600 px-16 py-6 rounded-3xl font-black text-2xl shadow-2xl">CLAIM REWARD</button>
+            <div class="w-24 h-24 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-8"></div>
+            <h2 class="text-3xl font-black mb-2">SECURE VIEWING</h2>
+            <p class="text-slate-400 mb-8">Earning reward in progress...</p>
+            <div id="timerDisplay" class="text-7xl font-black text-blue-500">20</div>
+            <div id="claimContainer" class="hidden mt-10">
+                <button onclick="claimReward()" class="bg-green-600 hover:bg-green-500 text-white px-12 py-4 rounded-2xl font-black text-xl shadow-xl shadow-green-900/40">CLAIM 0.00014 USDT</button>
             </div>
         </div>
     </div>
 
-    <!-- Payout Quote Modal -->
-    <div id="quoteModal" class="fixed inset-0 z-[3000] hidden flex items-center justify-center p-6 bg-black/95">
-        <div class="bg-zinc-900 p-8 rounded-[40px] border border-blue-500/30 max-w-sm text-center">
-            <h3 class="text-2xl font-black text-green-500 mb-1">+0.00014 USDT</h3>
-            <p class="text-[9px] text-zinc-500 uppercase font-bold mb-8">Credited to Balance</p>
-            <div class="bg-black p-6 rounded-3xl italic text-zinc-300 text-sm mb-8 leading-relaxed shadow-inner border border-zinc-800">
-                "<span id="quoteText">...</span>"
+    <!-- Reward Popup Modal -->
+    <div id="rewardModal" class="fixed inset-0 z-[3000] hidden flex items-center justify-center p-6 bg-slate-950/90">
+        <div class="bg-slate-800 p-8 rounded-3xl border border-blue-500/50 max-w-sm text-center reward-popup shadow-2xl">
+            <div class="w-20 h-20 bg-green-500/20 text-green-500 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl">
+                <i class="fas fa-check-circle"></i>
             </div>
-            <button onclick="closeQuote()" class="w-full bg-blue-600 py-4 rounded-2xl font-black shadow-lg">CONTINUE EARNING</button>
+            <h3 class="text-2xl font-black mb-2">CONGRATULATIONS!</h3>
+            <p class="text-green-400 font-bold mb-4">+0.00014 USDT CREDITED</p>
+            <div class="bg-slate-900/50 p-4 rounded-xl italic text-slate-300 text-sm mb-6 border-l-4 border-blue-500">
+                "<span id="quoteText">Loading quote...</span>"
+            </div>
+            <button onclick="closeReward()" class="w-full bg-blue-600 py-4 rounded-xl font-bold">KEEP EARNING & INVITING</button>
         </div>
     </div>
 
-    <footer class="fixed bottom-0 w-full glass p-4 text-center text-[9px] text-zinc-600 z-40">
-        <p>© 2026 PAPERHOUSE CORPORATION | <span id="fClock">00:00:00</span></p>
+    <footer class="fixed bottom-0 w-full glass p-3 text-center text-[10px] text-slate-500 z-40">
+        <p>© PAPERHOUSE CORPORATION | <span id="footerClock"></span></p>
     </footer>
 
     <script src="app.js"></script>
