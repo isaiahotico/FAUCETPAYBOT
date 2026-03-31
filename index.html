@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PAPERHOUSE CORPORATION</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <!-- Adterra SDKs -->
+    <script src='//libtl.com/sdk.js' data-zone='10555663' data-sdk='show_10555663'></script>
+    <script src='//libtl.com/sdk.js' data-zone='10555746' data-sdk='show_10555746'></script>
+    <style>
+        :root { --bg-color: #1a1a1a; --text-color: #ffffff; --accent-color: #3b82f6; }
+        body { background-color: var(--bg-color); color: var(--text-color); transition: 0.3s; }
+        .card { background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); }
+        .btn-primary { background-color: var(--accent-color); }
+        #ad-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 50; align-items: center; justify-content: center; flex-direction: column; }
+    </style>
+</head>
+<body class="p-4 font-sans">
+
+    <!-- Top Bar -->
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-xl font-bold italic">PAPERHOUSE CORP</h1>
+        <div id="user-display" class="bg-blue-600 px-3 py-1 rounded-full text-sm">@Guest</div>
+    </div>
+
+    <!-- Main Balance -->
+    <div class="card p-6 rounded-2xl shadow-xl text-center mb-6 border border-gray-700">
+        <p class="text-gray-400 text-sm">Total Balance</p>
+        <h2 class="text-4xl font-black text-green-400" id="balance">0.00000 <span class="text-xs">USDT</span></h2>
+    </div>
+
+    <!-- Ad Buttons -->
+    <div class="grid grid-cols-2 gap-4 mb-6">
+        <button onclick="startAdProcess(1)" id="btn-ad-1" class="btn-primary p-4 rounded-xl font-bold shadow-lg active:scale-95 transition">PREMIUM ADS 1</button>
+        <button onclick="startAdProcess(2)" id="btn-ad-2" class="btn-primary p-4 rounded-xl font-bold shadow-lg active:scale-95 transition">TURBO ADS 2</button>
+    </div>
+
+    <!-- Cooldown Timer -->
+    <div id="cooldown-box" class="hidden text-center text-red-400 mb-4 animate-pulse">
+        Wait: <span id="cooldown-timer">05:00</span>
+    </div>
+
+    <!-- Referral Section -->
+    <div class="card p-4 rounded-xl mb-6">
+
+        <h3 class="font-bold mb-2">Referral Program (12%)</h3>
+        <div class="flex gap-2 mb-2">
+            <input type="text" id="referral-input" placeholder="Enter 6-digit code" class="bg-gray-800 border border-gray-600 p-2 rounded flex-1 text-sm">
+            <button onclick="applyReferral()" class="bg-green-600 px-4 py-2 rounded text-sm font-bold">Apply</button>
+        </div>
+        <div class="text-xs text-gray-400 flex justify-between">
+            <span>My Code: <b id="my-ref-code">...</b></span>
+            <span>Total Refs: <b id="total-refs">0</b></span>
+        </div>
+    </div>
+
+    <!-- Withdrawal Section -->
+    <div class="card p-4 rounded-xl mb-6">
+        <h3 class="font-bold mb-3 text-blue-400">Withdrawal</h3>
+        <select id="withdraw-method" class="w-full bg-gray-800 border border-gray-600 p-2 rounded mb-2">
+            <option value="gcash">GCash</option>
+            <option value="faucetpay">FaucetPay</option>
+            <option value="paypal">PayPal</option>
+        </select>
+        <input type="text" id="withdraw-address" placeholder="Address/Number" class="w-full bg-gray-800 border border-gray-600 p-2 rounded mb-2">
+        <button onclick="requestWithdrawal()" class="w-full bg-white text-black font-black py-2 rounded">WITHDRAW (Min 0.02)</button>
+        
+        <div class="mt-4">
+            <p class="text-xs font-bold uppercase mb-2">Recent History</p>
+            <div id="withdraw-history" class="text-[10px] space-y-1 max-h-32 overflow-y-auto"></div>
+        </div>
+    </div>
+
+    <!-- Admin Section (Hidden by default) -->
+    <div id="admin-panel" class="hidden card p-4 rounded-xl mb-6 border-2 border-red-500">
+        <h3 class="text-red-500 font-bold mb-2">ADMIN PANEL</h3>
+        <div id="pending-requests" class="space-y-2"></div>
+    </div>
+
+    <!-- Customization -->
+    <div class="flex gap-4 justify-center mb-8">
+        <div>
+            <label class="block text-[10px] uppercase">BG</label>
+            <input type="color" id="color-bg" onchange="updateColors()" value="#1a1a1a">
+        </div>
+        <div>
+            <label class="block text-[10px] uppercase">Accent</label>
+            <input type="color" id="color-accent" onchange="updateColors()" value="#3b82f6">
+        </div>
+    </div>
+
+    <!-- Ad Overlay -->
+    <div id="ad-overlay">
+        <h2 class="text-2xl font-bold mb-2">Watching Ad...</h2>
+        <div class="text-6xl font-black mb-4" id="timer-display">20</div>
+        <p id="ad-status" class="text-yellow-400 animate-bounce">Keep this window open!</p>
+        <button id="claim-btn" onclick="claimReward()" class="hidden bg-green-500 text-white px-8 py-3 rounded-full font-bold text-xl">CLAIM REWARD</button>
+    </div>
+
+    <footer class="text-center text-gray-500 text-[10px] mt-10">
+        PAPERHOUSE CORPORATION &copy; <span id="footer-date"></span> | <span id="footer-time"></span>
+    </footer>
+
+    <!-- Audio for finished ad -->
+    <audio id="finish-sound" src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3"></audio>
+
+    <script src="app.js"></script>
+</body>
+</html>
