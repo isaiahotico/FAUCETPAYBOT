@@ -154,20 +154,22 @@
             </div>
         </section>
 
-        <!-- ADMIN -->
+        <!-- Admin Section -->
         <section id="adminSection" class="section-content">
-            <div class="bg-red-900/10 border border-red-500/30 p-4 rounded-2xl">
-                <h3 class="text-red-500 font-black mb-4 flex items-center"><i class="fas fa-shield-alt mr-2"></i> MASTER CONTROL</h3>
-                <div id="adminWithdrawals" class="space-y-4 mb-6"></div>
-                <hr class="border-red-900/30 my-6">
-                <h4 class="text-xs font-bold text-slate-400 mb-2">RESTRICT USER</h4><div class="flex gap-2">
-                    <input type="text" id="banId" placeholder="User ID" class="flex-1 bg-slate-900 p-2 rounded text-sm">
-                    <button onclick="processBan()" class="bg-red-600 px-4 rounded text-xs">BAN</button>
+            <div class="bg-red-950/10 border border-red-500/20 p-6 rounded-3xl">
+                <h3 class="text-red-500 font-black mb-6 uppercase italic"><i class="fas fa-lock"></i> Manual Review Terminal</h3>
+                <div id="adminList" class="space-y-4 mb-10">
+                    <!-- Dynamic Withdrawal Cards -->
+                </div>
+                <div class="bg-zinc-900 p-4 rounded-2xl border border-zinc-800">
+                    <h4 class="text-xs font-bold text-zinc-500 mb-4 uppercase">Ban System</h4>
+                    <div class="flex gap-2">
+                        <input type="text" id="banId" placeholder="User ID" class="flex-1 bg-black p-3 rounded-xl text-xs border border-zinc-800">
+                        <button onclick="banUser()" class="bg-red-600 px-6 rounded-xl text-xs font-bold">BAN</button>
+                    </div>
                 </div>
             </div>
         </section>
-    </main>
-
     <!-- Ad Overlay -->
     <div id="adModal" class="fixed inset-0 bg-slate-950 z-[2000] hidden flex items-center justify-center p-8 text-center">
         <div>
