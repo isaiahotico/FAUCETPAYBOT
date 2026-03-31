@@ -1,3 +1,4 @@
+ChatGPT | Midjourney:
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,31 +10,34 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     
-    <!-- AdTerra / Monetag SDKs -->
+    <!-- Ad SDKs -->
     <script src='//libtl.com/sdk.js' data-zone='10555663' data-sdk='show_10555663'></script>
     <script src='//libtl.com/sdk.js' data-zone='10555746' data-sdk='show_10555746'></script>
     
     <style>
         :root { --main-bg: #0f172a; --accent-color: #3b82f6; }
-        body { background-color: var(--main-bg); transition: 0.3s; overflow-x: hidden; color: white; }
-        .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
-        .hidden-section { display: none; }
-        .banned-overlay { display:none; position:fixed; inset:0; background:black; z-index:9999; flex-direction:column; align-items:center; justify-content:center; text-align:center; }
+        body { background-color: var(--main-bg); color: white; transition: 0.3s; font-family: sans-serif; overflow-x: hidden; }
+        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
+        .nav-btn { flex: 1; padding: 10px; font-size: 10px; font-weight: bold; text-align: center; opacity: 0.6; }
+        .nav-btn.active { opacity: 1; border-bottom: 2px solid var(--accent-color); color: var(--accent-color); }
+        .page-section { display: none; animation: fadeIn 0.3s ease; }
+        .page-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .banned-screen { display:none; position:fixed; inset:0; background:black; z-index:9999; flex-direction:column; align-items:center; justify-content:center; text-align:center; }
     </style>
 </head>
-<body class="min-h-screen font-sans">
+<body>
 
-    <!-- Banned Screen -->
-    <div id="banned-screen" class="banned-overlay p-10">
+    <div id="banned-screen" class="banned-screen p-10">
         <h1 class="text-6xl mb-4">🚫</h1>
         <h2 class="text-3xl font-black text-red-500">ACCOUNT BANNED</h2>
-        <p class="mt-4 text-gray-400">You have been restricted for violating our terms of service.</p>
+        <p class="mt-4 text-gray-400">Your access has been revoked by the administrator.</p>
     </div>
 
-    <!-- Header -->
+    <!-- Top Header -->
     <header class="p-4 glass flex justify-between items-center sticky top-0 z-50">
         <div>
-            <p id="tg-username" class="text-xs font-bold text-blue-400">@Loading...</p>
+            <p id="tg-username" class="text-xs font-bold text-blue-400">@User</p>
             <h1 class="text-xl font-black tracking-tighter">PAPERHOUSE CORP</h1>
         </div>
         <div class="text-right">
@@ -41,99 +45,123 @@
         </div>
     </header>
 
-    <main id="main-app" class="p-4 pb-24">
-        <!-- Stats Card -->
-        <div class="grid grid-cols-2 gap-4 mb-6">
-            <div class="glass p-4 rounded-2xl text-center border-b-4 border-blue-500">
-                <p class="text-gray-400 text-[10px] uppercase font-bold">Balance</p>
-                <p class="text-2xl font-black" id="user-balance">0.00000</p>                <p class="text-[10px] text-blue-400 font-bold">USDT</p>
-            </div>
-            <div class="glass p-4 rounded-2xl text-center">
-                <p class="text-gray-400 text-[10px] uppercase font-bold">Total Users</p>
-                <p class="text-2xl font-black" id="total-users">0</p>
-            </div>
-        </div>
+    <!-- Navigation Menu Section -->
+    <nav class="flex glass sticky top-[72px] z-40 mb-4">
+        <button onclick="showSection('tasks', this)" class="nav-btn active">TASKS</button>
+        <button onclick="showSection('wallet', this)" class="nav-btn">WALLET</button>
+        <button onclick="showSection('invite', this)" class="nav-btn">INVITE</button>
+        <button onclick="showSection('settings', this)" class="nav-btn">UI</button>
+        <button id="nav-admin" onclick="showSection('admin', this)" class="nav-btn hidden text-red-500">ADMIN</button>
+    </nav>
 
-        <!-- Ads -->
-        <div class="space-y-4 mb-8">
-            <button onclick="handleAdClick('PREMIUM ADS 1')" id="adBtn1" class="w-full bg-blue-600 py-5 rounded-2xl font-black shadow-lg flex items-center justify-center gap-3">
-                💎 PREMIUM ADS 1
-            </button>
-            <button onclick="handleAdClick('TURBO ADS 2')" id="adBtn2" class="w-full bg-indigo-600 py-5 rounded-2xl font-black shadow-lg flex items-center justify-center gap-3">
-                ⚡ TURBO ADS 2
-            </button>
-            <p id="cooldown-timer" class="text-center text-red-400 font-bold text-sm hidden"></p>
-        </div>
-
-        <!-- Referral -->
-        <div class="glass p-5 rounded-2xl mb-6">
-            <h2 class="font-bold text-sm mb-3">Referral (12% Bonus)</h2>
-            <div class="flex gap-2 mb-4">
-                <input type="text" id="referral-input" placeholder="Paste Code" class="bg-black/40 border border-white/10 rounded-xl p-3 flex-1 text-sm outline-none">
-                <button onclick="applyReferral()" class="bg-white text-black px-6 rounded-xl font-bold">Apply</button>
+    <main class="p-4 pb-28">
+        
+        <!-- SECTION: TASKS -->
+        <section id="section-tasks" class="page-section active">
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <div class="glass p-4 rounded-2xl text-center border-b-4 border-blue-500">
+                    <p class="text-gray-400 text-[10px] uppercase font-bold">Balance</p>
+                    <p class="text-2xl font-black" id="user-balance">0.00000</p>
+                    <p class="text-[10px] text-blue-400 font-bold">USDT</p>
+                </div>
+                <div class="glass p-4 rounded-2xl text-center">
+                    <p class="text-gray-400 text-[10px] uppercase font-bold">Total Users</p>
+                    <p class="text-2xl font-black" id="total-users">0</p>
+                </div>
             </div>
-            <div class="flex justify-between text-[11px] bg-white/5 p-3 rounded-xl">
-                <span>Code: <b id="my-ref-code" class="text-blue-400">...</b></span>
-                <span>Referrals: <b id="ref-count">0</b></span>
+
+            <div class="space-y-4">
+                <button onclick="handleAdClick('PREMIUM ADS 1')" class="w-full bg-blue-600 py-6 rounded-2xl font-black shadow-lg flex items-center justify-center gap-3">💎 PREMIUM ADS 1</button>
+                <button onclick="handleAdClick('TURBO ADS 2')" class="w-full bg-indigo-600 py-6 rounded-2xl font-black shadow-lg flex items-center justify-center gap-3">⚡ TURBO ADS 2</button>
+                <p id="cooldown-timer" class="text-center text-red-400 font-bold text-xs hidden"></p>
             </div>
-        </div>
+        </section>
 
-        <!-- Withdraw -->
-        <div class="glass p-5 rounded-2xl mb-6">
-            <h2 class="font-bold text-sm mb-4">Withdrawal</h2>
-            <select id="wd-method" class="w-full bg-black/40 border border-white/10 rounded-xl p-3 mb-2 text-sm">
-                <option value="gcash">GCash</option>
-                <option value="faucetpay">FaucetPay</option>
-                <option value="paypal">PayPal</option>
-            </select>
-            <input type="text" id="wd-address" placeholder="Account Details" class="w-full bg-black/40 border border-white/10 rounded-xl p-3 mb-4 text-sm">
-            <button onclick="requestWithdraw()" class="w-full bg-blue-600 text-white font-black py-4 rounded-xl">WITHDRAW (MIN 0.02)</button>
-            <div id="wd-history" class="mt-4 space-y-2 text-[10px]"></div>
-        </div>
-
-        <!-- Customization -->
-        <div class="glass p-5 rounded-2xl mb-6 flex justify-between items-center">
-            <h2 class="font-bold text-sm text-gray-400">Personalize</h2>
-            <div class="flex gap-3">
-                <input type="color" id="bg-picker" onchange="updateTheme()" class="h-8 w-8 bg-transparent">
-                <input type="color" id="accent-picker" onchange="updateTheme()" class="h-8 w-8 bg-transparent">
+        <!-- SECTION: WALLET -->
+        <section id="section-wallet" class="page-section">
+            <div class="glass p-5 rounded-2xl mb-6">
+                <h2 class="font-bold text-sm mb-4">Withdraw Funds</h2>
+                <select id="wd-method" class="w-full bg-black/40 border border-white/10 rounded-xl p-3 mb-2 text-sm">
+                    <option value="gcash">GCash</option>
+                    <option value="faucetpay">FaucetPay</option>
+                    <option value="paypal">PayPal</option>
+                </select>
+                <input type="text" id="wd-address" placeholder="Enter Wallet/Number" class="w-full bg-black/40 border border-white/10 rounded-xl p-3 mb-4 text-sm outline-none">
+                <button onclick="requestWithdraw()" class="w-full bg-blue-600 text-white font-black py-4 rounded-xl">WITHDRAW (MIN 0.02)</button>
+                
+                <div class="mt-6">
+                    <p class="text-[10px] font-bold text-gray-500 mb-2 uppercase">My History</p>
+                    <div id="wd-history" class="space-y-2 text-[10px]"></div>
+                </div>
             </div>
-        </div>
+        </section>
 
-        <!-- Admin Section -->
-        <div id="admin-panel" class="hidden-section border-t-4 border-red-600 pt-6">
-            <h2 class="text-xl font-black text-red-500 mb-4">ADMIN DASHBOARD</h2>
-            
-            <div class="bg-red-900/20 p-4 rounded-xl mb-6">
-                <h3 class="font-bold mb-2">Pending Withdrawals</h3>
+        <!-- SECTION: INVITE -->
+        <section id="section-invite" class="page-section">
+            <div class="glass p-5 rounded-2xl">
+                <h2 class="font-bold text-sm mb-2">Referral Program</h2>
+                <p class="text-[10px] text-gray-400 mb-4">Get 12% bonus from every task your friends complete.</p>
+                <div class="flex gap-2 mb-4">
+                    <input type="text" id="referral-input" placeholder="Paste 6-digit code" class="bg-black/40 border border-white/10 rounded-xl p-3 flex-1 text-sm outline-none"><button onclick="applyReferral()" class="bg-white text-black px-6 rounded-xl font-bold">Apply</button>
+                </div>
+                <div class="flex justify-between text-xs bg-white/5 p-4 rounded-xl">
+                    <span>My Code: <b id="my-ref-code" class="text-blue-400">---</b></span>
+                    <span>Total Referrals: <b id="ref-count">0</b></span>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: UI SETTINGS -->
+        <section id="section-settings" class="page-section">
+            <div class="glass p-5 rounded-2xl">
+                <h2 class="font-bold text-sm mb-4">Customize Background & Colors</h2>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-[10px] text-gray-400 block mb-1">Background Color</label>
+                        <input type="color" id="bg-picker" onchange="updateTheme()" class="w-full h-10 bg-transparent cursor-pointer">
+                    </div>
+                    <div>
+                        <label class="text-[10px] text-gray-400 block mb-1">Accent Color</label>
+                        <input type="color" id="accent-picker" onchange="updateTheme()" class="w-full h-10 bg-transparent cursor-pointer">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: ADMIN PANEL -->
+        <section id="section-admin" class="page-section">
+            <div class="bg-red-900/10 border border-red-900/30 p-4 rounded-2xl mb-6">
+                <h2 class="text-red-500 font-black text-sm mb-4">PENDING WITHDRAWALS</h2>
                 <div id="admin-withdrawals" class="space-y-3"></div>
             </div>
 
-            <div class="bg-slate-800 p-4 rounded-xl">
-                <h3 class="font-bold mb-2">User Management (Ban)</h3>
-                <div id="admin-users"class="max-h-60 overflow-y-auto space-y-2"></div>
+            <div class="glass p-4 rounded-2xl">
+                <h2 class="text-gray-400 font-black text-sm mb-4">USER MANAGEMENT</h2>
+                <div id="admin-users" class="max-h-80 overflow-y-auto space-y-2"></div>
             </div>
-        </div>
+        </section>
+
     </main>
+
+    <!-- Footer -->
+    <footer class="fixed bottom-0 w-full glass p-3 text-center text-[10px] text-gray-500 z-50">
+        <p id="footer-date-time" class="font-mono text-gray-300"></p>
+        <p>PAPERHOUSE CORPORATION • v3.0</p>
+    </footer>
 
     <!-- Ad Overlay -->
     <div id="ad-overlay" class="fixed inset-0 bg-slate-950 z-[100] hidden flex-col items-center justify-center text-center p-8">
         <div id="ad-timer-container">
-            <h2 class="text-xl font-bold mb-2" id="ad-title">Watching...</h2>
-            <div class="text-6xl font-black my-10" id="timer-display">20</div>
+            <h2 class="text-xl font-bold mb-2" id="ad-title">Ad in Progress</h2>
+            <div class="text-7xl font-black my-10" id="timer-display">20</div>
+            <p class="text-gray-500 text-xs">Closing the app will cancel the reward</p>
         </div>
         <div id="claim-area" class="hidden">
-            <button onclick="claimReward()" class="bg-green-500 text-white font-black px-12 py-6 rounded-2xl text-xl shadow-2xl animate-bounce">
+            <button onclick="claimReward()" class="bg-green-500 text-white font-black px-12 py-6 rounded-3xl text-xl shadow-2xl animate-pulse">
                 CLAIM 0.00014 USDT
             </button>
         </div>
     </div>
-
-    <!-- Footer -->
-    <footer class="fixed bottom-0 w-full glass p-3 text-center text-[10px] text-gray-500">
-        <p id="footer-date-time"></p>
-        <p>PAPERHOUSE CORPORATION • ADMIN: AIzaSyBw...app</p>
-    </footer>
 
     <audio id="rewardSound" src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3"></audio>
 
