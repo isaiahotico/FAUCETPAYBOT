@@ -18,80 +18,92 @@
   <script>(function(s){s.dataset.zone='10601128',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script><script>(function(s){s.dataset.zone='10601128',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
     <script>(function(s){s.dataset.zone='10109465',s.src='https://groleegni.net/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
     <script>(function(s){s.dataset.zone='10800165',s.src='https://n6wxm.com/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
+  
     <style>
-        :root { --main-bg: #0f172a; --accent: #3b82f6; }
-        body { background-color: var(--main-bg); color: white; transition: 0.3s; font-family: sans-serif; }
-        .sidebar { transition: 0.4s; left: -280px; width: 280px; z-index: 1000; height: 100vh; position: fixed; }
+        :root { --main-bg: #020617; --accent: #3b82f6; }
+        body { background-color: var(--main-bg); color: white; transition: 0.3s; font-family: 'Inter', sans-serif; }
+        .sidebar { transition: 0.4s; left: -300px; width: 300px; z-index: 1000; height: 100vh; position: fixed; box-shadow: 20px 0 50px rgba(0,0,0,0.5); }
         .sidebar.active { left: 0; }
-        .glass { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .glass { background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(15px); border-bottom: 1px solid rgba(255,255,255,0.05); }
         .section-content { display: none; }
         .section-active { display: block; }
-        .reward-popup { animation: slideUp 0.5s ease-out; }
-        @keyframes slideUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .admin-card { background: linear-gradient(145deg, #1e293b, #0f172a); border-left: 4px solid #ef4444; }
     </style>
 </head>
 <body class="overflow-x-hidden">
 
     <!-- Sidebar -->
-    <div id="sidebar" class="sidebar bg-slate-900 shadow-2xl p-6 border-r border-slate-800">
-        <h2 class="text-2xl font-black text-blue-500 mb-8 tracking-tighter">PAPERHOUSE</h2>
+    <div id="sidebar" class="sidebar bg-slate-950 p-6 border-r border-slate-800">
+        <h2 class="text-2xl font-black text-blue-500 mb-2 tracking-tighter uppercase">Paperhouse</h2>
+        <p class="text-[10px] text-slate-500 mb-8 border-b border-slate-800 pb-4">CORPORATION v3.0</p>
         <nav class="space-y-2">
-            <button onclick="showSection('home')" class="w-full text-left p-3 hover:bg-slate-800 rounded-lg transition"><i class="fas fa-play mr-3 text-blue-400"></i> Earn USDT</button>
-            <button onclick="showSection('withdraw')" class="w-full text-left p-3 hover:bg-slate-800 rounded-lg transition"><i class="fas fa-wallet mr-3 text-green-400"></i> Withdrawal</button>
-            <button onclick="showSection('referral')" class="w-full text-left p-3 hover:bg-slate-800 rounded-lg transition"><i class="fas fa-users mr-3 text-purple-400"></i> Referrals</button>            <button onclick="showSection('settings')" class="w-full text-left p-3 hover:bg-slate-800 rounded-lg transition"><i class="fas fa-palette mr-3 text-pink-400"></i> Customize</button>
-            <hr class="border-slate-800 my-4">
-            <button onclick="accessAdmin()" class="w-full text-left p-3 bg-red-900/20 text-red-400 hover:bg-red-900/40 rounded-lg transition border border-red-900/50"><i class="fas fa-lock mr-3"></i> Admin Panel</button>
+            <button onclick="showSection('home')" class="w-full text-left p-4 hover:bg-slate-900 rounded-xl transition"><i class="fas fa-th-large mr-3 text-blue-400"></i> Dashboard</button>
+            <button onclick="showSection('withdraw')" class="w-full text-left p-4 hover:bg-slate-900 rounded-xl transition"><i class="fas fa-wallet mr-3 text-green-400"></i> Withdrawal</button>            <button onclick="showSection('referral')" class="w-full text-left p-4 hover:bg-slate-900 rounded-xl transition"><i class="fas fa-user-friends mr-3 text-purple-400"></i> My Network</button>
+            <button onclick="showSection('settings')" class="w-full text-left p-4 hover:bg-slate-900 rounded-xl transition"><i class="fas fa-paint-brush mr-3 text-pink-400"></i> Appearance</button>
+            <div class="pt-10">
+                <button onclick="accessAdmin()" class="w-full text-left p-4 bg-red-950/30 text-red-400 hover:bg-red-900/40 rounded-xl transition border border-red-900/30 font-bold"><i class="fas fa-user-shield mr-3"></i> ADMIN CONTROL</button>
+            </div>
         </nav>
     </div>
 
     <!-- Header -->
     <header class="glass sticky top-0 z-50 p-4 flex justify-between items-center">
         <div class="flex items-center gap-3">
-            <button onclick="toggleSidebar()" class="p-2 bg-slate-800 rounded-lg"><i class="fas fa-bars"></i></button>
+            <button onclick="toggleSidebar()" class="p-2 text-xl text-blue-500"><i class="fas fa-align-left"></i></button>
             <div>
-                <h1 class="text-sm font-bold text-blue-400 uppercase tracking-widest">Paperhouse Corp</h1>
-                <p id="topUsername" class="text-xs text-slate-400">@loading...</p>
+                <p id="topUsername" class="text-xs font-black text-white">@username</p>
+                <p class="text-[9px] text-blue-400 uppercase tracking-widest">Premium Member</p>
             </div>
         </div>
-        <div class="text-right">
-            <p id="userBalance" class="text-xl font-black text-green-400">0.00000</p>
-            <p class="text-[10px] uppercase text-slate-500 font-bold">USDT Balance</p>
+        <div class="bg-slate-900/80 px-4 py-1 rounded-full border border-slate-800">
+            <span id="userBalance" class="text-green-400 font-bold">0.00000</span> <span class="text-[9px] text-slate-500">USDT</span>
         </div>
     </header>
 
-    <main class="p-4 max-w-md mx-auto pb-24">
-        <!-- Stats -->
-        <div class="flex gap-2 mb-6 text-[10px] font-bold">
-            <div class="flex-1 bg-slate-800/50 p-2 rounded-lg border border-slate-700">TOTAL USERS: <span id="totalUsers" class="text-blue-400">0</span></div>
-            <div class="flex-1 bg-slate-800/50 p-2 rounded-lg border border-slate-700">ONLINE: <span id="onlineUsers" class="text-green-400">0</span></div>
+    <main class="p-4 max-w-lg mx-auto pb-24">
+        <!-- Global Stats Board -->
+        <div class="grid grid-cols-2 gap-3 mb-6">
+            <div class="bg-slate-900 p-3 rounded-2xl border border-slate-800 text-center">
+                <p class="text-[9px] text-slate-500 uppercase">Total Members</p>
+                <p id="totalUsers" class="text-lg font-black text-white">0</p>
+            </div>
+            <div class="bg-slate-900 p-3 rounded-2xl border border-slate-800 text-center">
+                <p class="text-[9px] text-slate-500 uppercase">Live Online</p>
+                <p id="onlineUsers" class="text-lg font-black text-green-500">0</p>
+            </div>            <div class="col-span-2 bg-gradient-to-r from-blue-900/20 to-transparent p-3 rounded-2xl border border-blue-900/30 flex justify-between items-center">
+                <p class="text-[10px] font-bold text-slate-300">TOTAL COMMUNITY INCOME:</p>
+                <p id="totalGlobalIncome" class="text-sm font-black text-blue-400">0.0000 USDT</p>
+            </div>
         </div>
 
         <!-- HOME -->
         <section id="homeSection" class="section-content section-active">
-            <div class="bg-gradient-to-br from-slate-800 to-slate-900 p-6 rounded-2xl shadow-xl border border-slate-700">
-                <div class="flex justify-between items-end mb-6">
-                    <h2 class="font-bold text-slate-300">ADVERTISING TASKS</h2>
-                    <span class="text-xs text-slate-500"><span id="clickCount" class="text-blue-400">0</span> / 3000 Daily</span>
-                </div>                
-                <button onclick="startTask('PREMIUM')" class="w-full bg-blue-600 hover:bg-blue-500 py-4 rounded-xl font-bold mb-4 flex justify-between px-6 items-center shadow-lg shadow-blue-900/20">
-                    <div class="text-left">
-                        <p class="text-xs opacity-70">Task 01</p>
-                        <p>PREMIUM ADS 1</p>
-                    </div>
-                    <i class="fas fa-crown text-xl"></i>
-                </button>
+            <div class="bg-slate-900 p-6 rounded-3xl border border-slate-800 shadow-2xl">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-sm font-bold text-slate-400 uppercase tracking-wider">Ad Tasks</h2>
+                    <span class="bg-blue-600/20 text-blue-400 text-[10px] px-3 py-1 rounded-full font-bold"><span id="clickCount">0</span>/3000</span>
+                </div>
+                
+                <div class="space-y-4">
+                    <button onclick="startTask('PREMIUM ADS')" class="w-full bg-slate-800 hover:bg-slate-700 py-5 px-6 rounded-2xl flex justify-between items-center group transition">
+                        <div class="text-left">
+                            <h3 class="font-black text-white group-hover:text-blue-400">PREMIUM ADS 1</h3>
+                            <p class="text-[10px] text-slate-500">Fast Reward • High CPM</p>
+                        </div>
+                        <i class="fas fa-play text-blue-500"></i>
+                    </button>
 
-                <button onclick="startTask('TURBO')" class="w-full bg-indigo-600 hover:bg-indigo-500 py-4 rounded-xl font-bold flex justify-between px-6 items-center shadow-lg shadow-indigo-900/20">
-                    <div class="text-left">
-                        <p class="text-xs opacity-70">Task 02</p>
-                        <p>TURBO ADS 2</p>
-                    </div>
-                    <i class="fas fa-bolt text-xl"></i>
-                </button>
-                <div id="cooldownDiv" class="hidden mt-4 text-center text-red-400 text-sm font-bold animate-pulse">Cooldown: <span id="cdTimer">5:00</span></div>
+                    <button onclick="startTask('TURBO ADS')" class="w-full bg-slate-800 hover:bg-slate-700 py-5 px-6 rounded-2xl flex justify-between items-center group transition">
+                        <div class="text-left">
+                            <h3 class="font-black text-white group-hover:text-indigo-400">TURBO ADS 2</h3>
+                            <p class="text-[10px] text-slate-500">Instant Credit • Secure</p>
+                        </div>
+                        <i class="fas fa-bolt text-indigo-500"></i>
+                    </button>
+                </div>
             </div>
         </section>
-         <!-- News/Update Ticker -->
+        <!-- News/Update Ticker -->
             <div class="bg-blue-600/20 border border-blue-500/30 p-3 rounded-xl mb-6 flex items-center gap-3">
                 <i class="fa fa-bullhorn text-blue-400 animate-bounce"></i>
                 <marquee class="text-[10px] font-bold uppercase tracking-wider">Welcome to Our EARNING PLATFORM! Minimum withdrawal is 0.02 USDT.PLEASE INVITE MORE EVERYONE,IT MAKES YOUR EARNINGS BE ON SCHEDULE ON OUR WITHDRAWAL LISTS!Take care always! </marquee>
@@ -99,104 +111,93 @@
         </div> 
         <!-- WITHDRAW -->
         <section id="withdrawSection" class="section-content">
-            <div class="bg-slate-800 p-6 rounded-2xl border border-slate-700 mb-6">
-                <h3 class="font-bold text-lg mb-4">REQUEST PAYOUT</h3>
-                <select id="wdMethod" class="w-full bg-slate-900 p-3 rounded-lg mb-4 border border-slate-700">
-                    <option value="GCash">GCash</option>
-                    <option value="FaucetPay">FaucetPay</option>
-                    <option value="PayPal">PayPal</option>
-                </select>
-                <input type="text" id="wdAccount" placeholder="Wallet Address / Number" class="w-full bg-slate-900 p-3 rounded-lg mb-4 border border-slate-700">
-                <p class="text-[10px] text-slate-500 mb-4 tracking-wider">MINIMUM WITHDRAWAL: 0.02000 USDT</p>
-                <button onclick="requestWithdraw()" class="w-full bg-green-600 py-3 rounded-lg font-bold">WITHDRAW NOW</button>
+            <div class="bg-slate-900 p-6 rounded-3xl border border-slate-800">
+                <h3 class="font-black text-lg mb-6 text-white uppercase italic">Request Payout</h3>
+                <div class="space-y-4">
+                    <input type="email" id="wdEmail" placeholder="Your Email Address" class="w-full bg-slate-950 p-4 rounded-xl border border-slate-800 text-sm focus:border-blue-500 outline-none">
+                    <input type="text" id="wdName" placeholder="Full Registered Name" class="w-full bg-slate-950 p-4 rounded-xl border border-slate-800 text-sm focus:border-blue-500 outline-none">
+                    <select id="wdMethod" class="w-full bg-slate-950 p-4 rounded-xl border border-slate-800 text-sm outline-none">
+                        <option value="GCash">GCash</option>
+                        <option value="FaucetPay">FaucetPay</option>
+                        <option value="PayPal">PayPal</option>
+                    </select>
+                    <input type="text" id="wdAccount" placeholder="GCash Number / Wallet Address" class="w-full bg-slate-950 p-4 rounded-xl border border-slate-800 text-sm focus:border-blue-500 outline-none">
+                    <button onclick="requestWithdraw()" class="w-full bg-green-600 hover:bg-green-500 py-4 rounded-xl font-black shadow-lg shadow-green-900/20 transition uppercase tracking-widest">Confirm Withdrawal</button>
+                    <p class="text-center text-[10px] text-slate-500 uppercase">Min: 0.02 USDT • Manual Review 24h</p>
+                </div>
             </div>
-            <div id="wdHistory" class="space-y-2"></div>
+            <div id="wdHistory" class="mt-6 space-y-2"></div>
         </section>
 
         <!-- REFERRAL -->
         <section id="referralSection" class="section-content">
-            <div class="bg-slate-800 p-6 rounded-2xl text-center border border-slate-700">
-                <h3 class="font-bold mb-2">PARTNER PROGRAM</h3>
-                <p class="text-xs text-slate-400 mb-6">Earn 12% lifetime commission from referral clicks</p>
-                <div id="myRefCode" class="bg-slate-900 p-4 rounded-xl border-2 border-dashed border-slate-700 text-2xl font-mono text-blue-400 mb-6 tracking-widest cursor-pointer">------</div>
-                <div class="flex gap-2 mb-6">
-                    <input type="text" id="inputRef" placeholder="Enter Invite Code" class="flex-1 bg-slate-900 p-3 rounded-lg text-sm border border-slate-700">
-                    <button onclick="submitReferral()" class="bg-blue-600 px-6 rounded-lg font-bold">BIND</button>
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="bg-slate-900 p-3 rounded-lg">
-                        <p class="text-[10px] text-slate-500 uppercase">Total Referrals</p>
-                        <p id="totalRefs" class="text-xl font-bold">0</p>
-                    </div>
-                    <div class="bg-slate-900 p-3 rounded-lg">
-                        <p class="text-[10px] text-slate-500 uppercase">Referral Earnings</p>
-                        <p id="totalRefEarned" class="text-xl font-bold text-yellow-500">0.00</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- SETTINGS -->
-        <section id="settingsSection" class="section-content">
-            <div class="bg-slate-800 p-6 rounded-2xl border border-slate-700">
-                <h3 class="font-bold mb-6">CUSTOMIZATION</h3>
-                <div class="space-y-4">
-                    <div>
-                        <label class="text-xs text-slate-400 block mb-2">BACKGROUND COLOR</label>
-                        <input type="color" id="colorBg" onchange="updateColors()" class="w-full h-12 bg-transparent">
-                    </div>
-                    <div>
-                        <label class="text-xs text-slate-400 block mb-2">ACCENT COLOR</label>
-                        <input type="color" id="colorAccent" onchange="updateColors()" class="w-full h-12 bg-transparent">
-                    </div>
+            <div class="bg-slate-900 p-8 rounded-3xl border border-slate-800 text-center">
+                <h3 class="font-black text-xl mb-2">EARN 12% COMMISSION</h3>
+                <p class="text-xs text-slate-400 mb-8 px-6">Invite your friends and earn a bonus from every ad they watch for life.</p>
+                <div id="myRefCode" class="bg-slate-950 p-6 rounded-2xl border-2 border-dashed border-blue-500/50 text-3xl font-mono text-blue-400 mb-8 tracking-widest select-all">------</div>
+                <div class="flex gap-2">
+                    <input type="text" id="inputRef" placeholder="Paste 6-digit code" class="flex-1 bg-slate-950 p-4 rounded-xl text-sm border border-slate-800 outline-none">
+                    <button onclick="submitReferral()" class="bg-blue-600 px-6 rounded-xl font-bold">BIND</button>
                 </div>
             </div>
         </section>
 
         <!-- ADMIN -->
         <section id="adminSection" class="section-content">
-            <div class="bg-red-900/10 border border-red-500/30 p-4 rounded-2xl">
-                <h3 class="text-red-500 font-black mb-4 flex items-center"><i class="fas fa-shield-alt mr-2"></i> MASTER CONTROL</h3>
-                <div id="adminWithdrawals" class="space-y-4 mb-6"></div>
-                <hr class="border-red-900/30 my-6">
-                <h4 class="text-xs font-bold text-slate-400 mb-2">RESTRICT USER</h4><div class="flex gap-2">
-                    <input type="text" id="banId" placeholder="User ID" class="flex-1 bg-slate-900 p-2 rounded text-sm">
-                    <button onclick="processBan()" class="bg-red-600 px-4 rounded text-xs">BAN</button>
+            <div class="bg-red-950/20 border border-red-500/30 p-6 rounded-3xl">
+                <h3 class="text-red-500 font-black text-xl mb-6 flex items-center gap-3"><i class="fas fa-unlock-alt"></i> MASTER CONSOLE</h3>
+                <div id="adminWithdrawals"class="space-y-4 mb-10">
+                    <p class="text-slate-500 text-xs italic">Searching for pending requests...</p>
+                </div>
+                
+                <div class="bg-slate-900 p-4 rounded-2xl">
+                    <h4 class="text-xs font-bold text-slate-400 mb-4 uppercase">User Restriction</h4>
+                    <div class="flex gap-2">
+                        <input type="text" id="banId" placeholder="User ID to ban" class="flex-1 bg-slate-950 p-3 rounded-xl text-xs border border-slate-800">
+                        <button onclick="processBan()" class="bg-red-600 px-4 rounded-xl text-xs font-bold">BAN</button>
+                    </div>
                 </div>
             </div>
         </section>
+
     </main>
 
-    <!-- Ad Overlay -->
+    <!-- Ad Modal -->
     <div id="adModal" class="fixed inset-0 bg-slate-950 z-[2000] hidden flex items-center justify-center p-8 text-center">
-        <div>
-            <div class="w-24 h-24 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-8"></div>
-            <h2 class="text-3xl font-black mb-2">SECURE VIEWING</h2>
-            <p class="text-slate-400 mb-8">Earning reward in progress...</p>
-            <div id="timerDisplay" class="text-7xl font-black text-blue-500">20</div>
+        <div class="max-w-xs w-full">
+            <div class="relative w-32 h-32 mx-auto mb-10">
+                <div class="absolute inset-0 border-4 border-blue-500/20 rounded-full"></div>
+                <div id="timerRing" class="absolute inset-0 border-4 border-blue-500 rounded-full border-t-transparent animate-spin"></div>
+                <div id="timerDisplay" class="absolute inset-0 flex items-center justify-center text-5xl font-black">20</div>
+            </div>
+            <h2 class="text-2xl font-black mb-2 text-white">AD IN PROGRESS</h2>
+            <p class="text-slate-500 text-xs uppercase tracking-widest animate-pulse">Wait for audio signal...</p>
             <div id="claimContainer" class="hidden mt-10">
-                <button onclick="claimReward()" class="bg-green-600 hover:bg-green-500 text-white px-12 py-4 rounded-2xl font-black text-xl shadow-xl shadow-green-900/40">CLAIM 0.00014 USDT</button>
+                <button onclick="claimReward()" class="w-full bg-green-600 py-5 rounded-2xl font-black text-xl shadow-2xl">CLAIM REWARD</button>
             </div>
         </div>
     </div>
 
-    <!-- Reward Popup Modal -->
-    <div id="rewardModal" class="fixed inset-0 z-[3000] hidden flex items-center justify-center p-6 bg-slate-950/90">
-        <div class="bg-slate-800 p-8 rounded-3xl border border-blue-500/50 max-w-sm text-center reward-popup shadow-2xl">
-            <div class="w-20 h-20 bg-green-500/20 text-green-500 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl">
-                <i class="fas fa-check-circle"></i>
+    <!-- Reward Quote Modal -->
+    <div id="rewardModal" class="fixed inset-0 z-[3000] hidden flex items-center justify-center p-6 bg-slate-950/95">
+        <div class="bg-slate-900 p-8 rounded-[40px] border border-blue-500/30 max-w-sm text-center shadow-2xl">
+            <h3 class="text-2xl font-black mb-1 text-green-400">+0.00014 USDT</h3>
+            <p class="text-[10px] text-slate-500 uppercase tracking-widest mb-8">Credited Successfully</p>
+            <div class="bg-slate-950 p-6 rounded-3xl italic text-slate-300 text-sm mb-8 relative">
+                <i class="fas fa-quote-left absolute -top-3 -left-2 text-blue-500 text-2xl"></i>
+                <span id="quoteText">...</span>
             </div>
-            <h3 class="text-2xl font-black mb-2">CONGRATULATIONS!</h3>
-            <p class="text-green-400 font-bold mb-4">+0.00014 USDT CREDITED</p>
-            <div class="bg-slate-900/50 p-4 rounded-xl italic text-slate-300 text-sm mb-6 border-l-4 border-blue-500">
-                "<span id="quoteText">Loading quote...</span>"
-            </div>
-            <button onclick="closeReward()" class="w-full bg-blue-600 py-4 rounded-xl font-bold">KEEP EARNING & INVITING</button>
+            <button onclick="closeReward()" class="w-full bg-blue-600 py-4 rounded-2xl font-black">CONTINUE</button>
         </div>
     </div>
 
-    <footer class="fixed bottom-0 w-full glass p-3 text-center text-[10px] text-slate-500 z-40">
-        <p>© PAPERHOUSE CORPORATION | <span id="footerClock"></span></p>
+    <footer class="fixed bottom-0 w-full glass p-4 text-center text-[9px] text-slate-500 z-40">
+        <div class="flex justify-around mb-2 text-slate-400">
+            <span>Server: Active</span>
+            <span>Region: Global</span>
+            <span id="footerClock">00:00:00 AM</span>
+        </div>
+        <p>© 2026 PAPERHOUSE CORPORATION. ALL RIGHTS RESERVED.</p>
     </footer>
 
     <script src="app.js"></script>
