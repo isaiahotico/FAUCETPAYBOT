@@ -12,10 +12,12 @@
     <script src='//libtl.com/sdk.js' data-zone='10555663' data-sdk='show_10555663'></script>
     <script src='//libtl.com/sdk.js' data-zone='10555746' data-sdk='show_10555746'></script>
     <style>
-        :root { --main-bg: #1a202c; --accent-color: #3b82f6; }
-        body { background-color: var(--main-bg); transition: 0.3s; }
-        .glass { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); }
+        :root { --main-bg: #0f172a; --accent-color: #3b82f6; }
+        body { background-color: var(--main-bg); transition: 0.3s; overflow-x: hidden; }
+        .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
         .hidden-section { display: none; }
+        @keyframes pulse-glow { 0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); } 70% { transform: scale(1.05); box-shadow: 0 0 0 15px rgba(59, 130, 246, 0); } 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); } }
+        .claim-btn-animate { animation: pulse-glow 2s infinite; }
     </style>
 </head>
 <body class="text-white min-h-screen font-sans">
@@ -23,111 +25,131 @@
     <!-- Header -->
     <header class="p-4 glass flex justify-between items-center sticky top-0 z-50">
         <div>
-            <p id="tg-username" class="text-xs font-bold text-blue-400">Loading user...</p>
-            <h1 class="text-xl font-black tracking-tighter">PAPERHOUSE CORPORATION</h1>
+            <p id="tg-username" class="text-xs font-bold text-blue-400">@Guest</p>
+            <h1 class="text-xl font-black tracking-tighter">PAPERHOUSE CORP</h1>
         </div>
         <div class="text-right">
-            <span id="online-count" class="text-[10px] bg-green-500 px-2 py-1 rounded-full">Online: 0</span>
+            <span id="online-count" class="text-[10px] bg-green-600 px-2 py-1 rounded-full font-bold">Online: 0</span>
         </div>
     </header>
 
-    <main class="p-4 pb-24">
+    <main id="main-content" class="p-4 pb-24">
         <!-- Stats Card -->
         <div class="grid grid-cols-2 gap-4 mb-6">
-            <div class="glass p-4 rounded-xl text-center">
-                <p class="text-gray-400 text-xs uppercase">Balance</p>
-                <p class="text-2xl font-bold text-yellow-400" id="user-balance">0.00000</p>
-                <p class="text-[10px]">USDT</p>
+            <div class="glass p-4 rounded-2xl text-center border-b-4 border-blue-500">
+                <p class="text-gray-400 text-[10px] uppercase font-bold">Your Balance</p>
+                <p class="text-2xl font-black text-white" id="user-balance">0.00000</p>
+                <p class="text-[10px] text-blue-400 font-bold">USDT</p>
             </div>
-            <div class="glass p-4 rounded-xl text-center">
-                <p class="text-gray-400 text-xs uppercase">Total Users</p>
-                <p class="text-2xl font-bold" id="total-users">0</p>
+            <div class="glass p-4 rounded-2xl text-center">
+
+                <p class="text-gray-400 text-[10px] uppercase font-bold">Community</p>
+                <p class="text-2xl font-black" id="total-users">0</p>
+                <p class="text-[10px] text-gray-500">Total Users</p>
             </div>
         </div>
 
-        <!-- Ad Section -->
+        <!-- Ad Tasks Section -->
         <div class="space-y-4 mb-8">
-            <button onclick="startAdTimer('PREMIUM ADS 1')" id="adBtn1" class="w-full bg-blue-600 hover:bg-blue-700 py-4 rounded-xl font-bold shadow-lg transform active:scale-95 transition">
-                💎 PREMIUM ADS 1
+            <h3 class="text-xs font-bold text-gray-400 uppercase ml-1">Available Tasks</h3>
+            <button onclick="startAdTimer('PREMIUM ADS 1')" id="adBtn1" class="w-full bg-blue-600 hover:bg-blue-700 py-5 rounded-2xl font-black shadow-lg transform active:scale-95 transition flex items-center justify-center gap-3">
+                <span>💎</span> PREMIUM ADS 1
             </button>
-
-            <button onclick="startAdTimer('TURBO ADS 2')" id="adBtn2" class="w-full bg-purple-600 hover:bg-purple-700 py-4 rounded-xl font-bold shadow-lg transform active:scale-95 transition">
-                ⚡ TURBO ADS 2
+            <button onclick="startAdTimer('TURBO ADS 2')" id="adBtn2" class="w-full bg-indigo-600 hover:bg-indigo-700 py-5 rounded-2xl font-black shadow-lg transform active:scale-95 transition flex items-center justify-center gap-3">
+                <span>⚡</span> TURBO ADS 2
             </button>
-            <p id="cooldown-timer" class="text-center text-red-400 font-bold hidden"></p>
+            <p id="cooldown-timer" class="text-center text-red-400 font-bold text-sm hidden bg-red-900/20 py-2 rounded-lg"></p>
         </div>
 
-        <!-- Referral System -->
-        <div class="glass p-4 rounded-xl mb-6">
-            <h2 class="font-bold mb-2">Referral Program (12% Bonus)</h2>
-            <div class="flex gap-2">
-                <input type="text" id="referral-input" placeholder="Enter 6-digit code" class="bg-black/30 border border-white/20 rounded p-2 flex-1 text-sm">
-                <button onclick="applyReferral()" class="bg-green-600 px-4 rounded font-bold text-sm">Apply</button>
+        <!-- Referral -->
+        <div class="glass p-5 rounded-2xl mb-6">
+            <div class="flex justify-between items-center mb-3">
+                <h2 class="font-bold text-sm">Referral (12% Bonus)</h2>
+                <span class="text-[10px] bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded">Active</span>
             </div>
-            <div class="mt-3 text-xs text-gray-300 flex justify-between">
-                <span>My Code: <b id="my-ref-code">...</b></span>
-                <span>Referrals: <b id="ref-count">0</b></span>
+            <div class="flex gap-2 mb-4">
+                <input type="text" id="referral-input" placeholder="Enter Code" class="bg-black/40 border border-white/10 rounded-xl p-3 flex-1 text-sm focus:outline-none focus:border-blue-500">
+                <button onclick="applyReferral()" class="bg-white text-black px-6 rounded-xl font-bold text-sm">Apply</button>
+            </div>
+            <div class="flex justify-between text-[11px] font-medium bg-white/5 p-3 rounded-xl">
+                <span>My Code: <b id="my-ref-code" class="text-blue-400">...</b></span>
+                <span>Referrals: <b id="ref-count" class="text-blue-400">0</b></span>
             </div>
         </div>
 
-        <!-- Withdrawal Section -->
-        <div class="glass p-4 rounded-xl mb-6">
-            <h2 class="font-bold mb-4">Withdrawal (Min: 0.02 USDT)</h2>
-            <select id="wd-method" class="w-full bg-black/30 border border-white/20 rounded p-2 mb-2 text-sm">
+        <!-- Withdrawal -->
+        <div class="glass p-5 rounded-2xl mb-6">
+            <h2 class="font-bold text-sm mb-4">Withdraw Funds</h2>
+            <select id="wd-method" class="w-full bg-black/40 border border-white/10 rounded-xl p-3 mb-3 text-sm outline-none">
                 <option value="gcash">GCash</option>
                 <option value="faucetpay">FaucetPay</option>
                 <option value="paypal">PayPal</option>
             </select>
-            <input type="text" id="wd-address" placeholder="Account Number/Email" class="w-full bg-black/30 border border-white/20 rounded p-2 mb-2 text-sm">
-            <button onclick="requestWithdraw()" class="w-full bg-white text-black font-bold py-2 rounded">Submit Request</button>
+            <input type="text" id="wd-address" placeholder="Wallet Address / Number" class="w-full bg-black/40 border border-white/10 rounded-xl p-3 mb-4 text-sm outline-none">
+            <button onclick="requestWithdraw()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-black py-4 rounded-xl shadow-lg">WITHDRAW (MIN 0.02)</button>
             
-            <div class="mt-4">
-                <p class="text-xs font-bold uppercase text-gray-500 mb-2">History</p>
-                <div id="wd-history" class="text-[10px] space-y-1"></div>
+            <div class="mt-6">
+                <p class="text-[10px] font-bold uppercase text-gray-500 mb-2">Transaction History</p>
+                <div id="wd-history" class="text-[10px] space-y-2"></div>
             </div>
         </div>
 
         <!-- Customization -->
-        <div class="glass p-4 rounded-xl mb-6">
-            <h2 class="font-bold mb-2 text-sm">Personalize UI</h2>
-            <div class="flex gap-4">
-                <div class="flex flex-col items-center">
-                    <input type="color" id="bg-color-picker" onchange="updateTheme()" class="h-8 w-8 rounded cursor-pointer">
-                    <span class="text-[10px] mt-1">Background</span>
-                </div>
-                <div class="flex flex-col items-center">
-                    <input type="color" id="accent-color-picker" onchange="updateTheme()" class="h-8 w-8 rounded cursor-pointer">
-                    <span class="text-[10px] mt-1">Accent</span>
-                </div>
+        <div class="glass p-5 rounded-2xl mb-6 flex justify-between items-center">
+            <h2 class="font-bold text-sm">Theme Settings</h2>
+            <div class="flex gap-3">
+                <input type="color" id="bg-color-picker" onchange="updateTheme()" class="h-8 w-8 rounded-lg bg-transparent border-none cursor-pointer">
+                <input
+
+type="color" id="accent-color-picker" onchange="updateTheme()" class="h-8 w-8 rounded-lg bg-transparent border-none cursor-pointer">
             </div>
         </div>
 
-        <!-- Admin Section (Hidden for normal users) -->
-        <div id="admin-panel" class="hidden-section glass border-2 border-red-500 p-4 rounded-xl mb-6">
-            <h2 class="text-red-500 font-black mb-2">ADMIN PANEL</h2>
-            <div id="admin-requests" class="space-y-2 text-xs"></div>
+        <!-- Admin -->
+        <div id="admin-panel" class="hidden-section glass border-2 border-red-500/30 p-5 rounded-2xl mb-6">
+            <h2 class="text-red-500 font-black mb-4 flex items-center gap-2">🛡️ ADMIN CONSOLE</h2>
+            <div id="admin-requests" class="space-y-3 text-[11px]"></div>
         </div>
     </main>
 
     <!-- Footer -->
-    <footer class="fixed bottom-0 w-full glass p-2 text-center text-[10px] text-gray-400">
-        <p id="footer-date-time"></p>
-        <p>© 2024 PAPERHOUSE CORPORATION - All Rights Reserved</p>
+    <footer class="fixed bottom-0 w-full glass p-3 text-center text-[10px] text-gray-500 z-40">
+        <p id="footer-date-time" class="mb-1 text-gray-300 font-mono"></p>
+        <p>PAPERHOUSE CORPORATION v2.1 • STABLE</p>
     </footer>
 
-    <!-- Ad Overlay Overlay -->
-    <div id="ad-overlay" class="fixed inset-0 bg-black/95 z-[100] hidden flex-col items-center justify-center text-center p-6">
-        <h2 class="text-2xl font-bold mb-4" id="ad-title">Watching Ad...</h2>
-        <div class=
+    <!-- Ad Overlay -->
+    <div id="ad-overlay" class="fixed inset-0 bg-slate-950 z-[100] hidden flex-col items-center justify-center text-center p-8">
+        <div id="ad-timer-container" class="w-full max-w-xs">
+            <h2 class="text-xl font-bold mb-2" id="ad-title">Processing Ad...</h2>
+            <p class="text-gray-400 text-sm mb-8">Do not minimize the app</p>
+            
+            <!-- Timer Circle -->
+            <div class="relative w-40 h-40 mx-auto mb-10">
+                <svg class="w-full h-full transform -rotate-90">
+                    <circle cx="80" cy="80" r="70" stroke="currentColor" stroke-width="8" fill="transparent" class="text-gray-800"/>
+                    <circle id="progress-circle" cx="80" cy="80" r="70" stroke="currentColor" stroke-width="8" fill="transparent" stroke-dasharray="440" stroke-dashoffset="440" class="text-blue-500 transition-all duration-1000"/>
+                </svg>
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <span id="timer-display" class="text-5xl font-black">20</span>
+                </div>
+            </div>
+        </div>
 
-"text-6xl font-black mb-4" id="timer-display">20</div>
-        <p class="text-gray-400">Do not close this screen to receive reward.</p>
-        <div class="mt-8 w-full bg-gray-700 h-2 rounded-full overflow-hidden">
-            <div id="progress-bar" class="bg-blue-500 h-full transition-all duration-1000" style="width: 0%"></div>
+        <!-- Claim Area -->
+        <div id="claim-area" class="hidden w-full max-w-xs">
+            <div class="mb-6">
+                <div class="w-20 h-20 bg-green-500/20 text-green-500 rounded-full flex items-center justify-center mx-auto text-4xl mb-4">✔</div>
+                <h2 class="text-2xl font-black text-white">Task Finished!</h2>
+                <p class="text-gray-400 text-sm">Your reward is ready to be claimed.</p>
+            </div>
+            <button onclick="claimReward()" class="w-full bg-green-500 hover:bg-green-600 text-white font-black py-5 rounded-2xl shadow-xl claim-btn-animate text-lg">
+                CLAIM 0.00014 USDT
+            </button>
         </div>
     </div>
 
-    <!-- Reward Audio -->
+    <!-- Audio -->
     <audio id="rewardSound" src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3"></audio>
 
     <script src="app.js"></script>
