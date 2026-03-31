@@ -10,157 +10,184 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
-    <!-- AdTerra & Monetag SDKs -->
+    <!-- Ad SDKs -->
     <script src='//libtl.com/sdk.js' data-zone='10555663' data-sdk='show_10555663'></script>
     <script src='//libtl.com/sdk.js' data-zone='10555746' data-sdk='show_10555746'></script>
 
     <style>
-        :root { --main-bg: #1a202c; --accent-color: #3b82f6; }
-        body { background-color: var(--main-bg); color: white; transition: 0.3s; overflow-x: hidden; }
-        .sidebar { transition: 0.3s; left: -250px; width: 250px; z-index: 1000; }
+        :root { --main-bg: #0f172a; --accent: #3b82f6; }
+        body { background-color: var(--main-bg); color: white; transition: 0.3s; font-family: sans-serif; }
+        .sidebar { transition: 0.4s; left: -280px; width: 280px; z-index: 1000; height: 100vh; position: fixed; }
         .sidebar.active { left: 0; }
-        .glass { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); }
-        .hidden-section { display: none; }
+        .glass { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .section-content { display: none; }
+        .section-active { display: block; }
+        .reward-popup { animation: slideUp 0.5s ease-out; }
+        @keyframes slideUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     </style>
 </head>
-<body>
+<body class="overflow-x-hidden">
 
     <!-- Sidebar -->
-    <div id="sidebar" class="sidebar fixed top-0 h-full bg-gray-900 p-5 shadow-2xl">
-        <h2 class="text-xl font-bold mb-8 border-b pb-2">MENU</h2>
-        <nav class="space-y-4">
-            <button onclick="showSection('home')" class="block w-full text-left py-2 px-4 hover:bg-blue-600 rounded"><i class="fas fa-home mr-2"></i> Home</button>
-            <button onclick="showSection('withdraw')" class="block w-full text-left py-2 px-4 hover:bg-blue-600 rounded"><i class="fas fa-wallet mr-2"></i> Withdraw</button>
-            <button onclick="showSection('referral')" class="block w-full text-left py-2 px-4 hover:bg-blue-600 rounded"><i class="fas fa-users mr-2"></i> Referrals</button>
-            <button onclick="showSection('settings')" class="block w-full text-left py-2 px-4 hover:bg-blue-600 rounded"><i class="fas fa-cog mr-2"></i> Customization</button>
-            <button id="adminBtn" onclick="showSection('admin')" class="hidden block w-full text-left py-2 px-4 hover:bg-red-600 rounded"><i class="fas fa-user-shield mr-2"></i> Admin Panel</button>
+    <div id="sidebar" class="sidebar bg-slate-900 shadow-2xl p-6 border-r border-slate-800">
+        <h2 class="text-2xl font-black text-blue-500 mb-8 tracking-tighter">PAPERHOUSE</h2>
+        <nav class="space-y-2">
+            <button onclick="showSection('home')" class="w-full text-left p-3 hover:bg-slate-800 rounded-lg transition"><i class="fas fa-play mr-3 text-blue-400"></i> Earn USDT</button>
+            <button onclick="showSection('withdraw')" class="w-full text-left p-3 hover:bg-slate-800 rounded-lg transition"><i class="fas fa-wallet mr-3 text-green-400"></i> Withdrawal</button>
+            <button onclick="showSection('referral')" class="w-full text-left p-3 hover:bg-slate-800 rounded-lg transition"><i class="fas fa-users mr-3 text-purple-400"></i> Referrals</button>            <button onclick="showSection('settings')" class="w-full text-left p-3 hover:bg-slate-800 rounded-lg transition"><i class="fas fa-palette mr-3 text-pink-400"></i> Customize</button>
+            <hr class="border-slate-800 my-4">
+            <button onclick="accessAdmin()" class="w-full text-left p-3 bg-red-900/20 text-red-400 hover:bg-red-900/40 rounded-lg transition border border-red-900/50"><i class="fas fa-lock mr-3"></i> Admin Panel</button>
         </nav>
     </div>
 
-    <!-- Header -->    <header class="p-4 glass flex justify-between items-center sticky top-0 z-50">
-        <div class="flex items-center">
-            <button onclick="toggleSidebar()" class="mr-4 text-2xl"><i class="fas fa-bars"></i></button>
+    <!-- Header -->
+    <header class="glass sticky top-0 z-50 p-4 flex justify-between items-center">
+        <div class="flex items-center gap-3">
+            <button onclick="toggleSidebar()" class="p-2 bg-slate-800 rounded-lg"><i class="fas fa-bars"></i></button>
             <div>
-                <h1 class="font-black text-lg tracking-widest text-blue-400">PAPERHOUSE CORPORATION</h1>
-                <p id="topUsername" class="text-xs text-gray-300">Loading...</p>
+                <h1 class="text-sm font-bold text-blue-400 uppercase tracking-widest">Paperhouse Corp</h1>
+                <p id="topUsername" class="text-xs text-slate-400">@loading...</p>
             </div>
         </div>
         <div class="text-right">
-            <p class="text-xs">Balance</p>
-            <p id="userBalance" class="font-bold text-green-400">0.00000 USDT</p>
+            <p id="userBalance" class="text-xl font-black text-green-400">0.00000</p>
+            <p class="text-[10px] uppercase text-slate-500 font-bold">USDT Balance</p>
         </div>
     </header>
 
-    <!-- Main Content -->
-    <main class="p-4 max-w-md mx-auto mb-20">
-        
-        <!-- Stats Bar -->
-        <div class="grid grid-cols-2 gap-2 mb-6 text-center text-xs">
-            <div class="bg-gray-800 p-2 rounded">Users: <span id="totalUsers">0</span></div>
-            <div class="bg-gray-800 p-2 rounded">Online: <span id="onlineUsers">0</span></div>
+    <main class="p-4 max-w-md mx-auto pb-24">
+        <!-- Stats -->
+        <div class="flex gap-2 mb-6 text-[10px] font-bold">
+            <div class="flex-1 bg-slate-800/50 p-2 rounded-lg border border-slate-700">TOTAL USERS: <span id="totalUsers" class="text-blue-400">0</span></div>
+            <div class="flex-1 bg-slate-800/50 p-2 rounded-lg border border-slate-700">ONLINE: <span id="onlineUsers" class="text-green-400">0</span></div>
         </div>
 
-        <!-- Home Section -->
-        <section id="homeSection" class="section-content">
-            <div class="bg-gray-800 rounded-xl p-6 text-center shadow-lg mb-6">
-                <h3 class="mb-4 font-bold text-blue-300">EARNING ZONE</h3>
-                <div id="cooldownMsg" class="hidden text-red-500 mb-4 font-bold animate-pulse">Cooldown Active: 5:00</div>
-                <button onclick="startTask('PREMIUM ADS 1')" class="ad-btn w-full bg-blue-600 hover:bg-blue-700 py-4 rounded-lg font-bold mb-4 flex justify-between px-6 items-center">
-                    <span>PREMIUM ADS 1</span>
-                    <i class="fas fa-play-circle"></i>
+        <!-- HOME -->
+        <section id="homeSection" class="section-content section-active">
+            <div class="bg-gradient-to-br from-slate-800 to-slate-900 p-6 rounded-2xl shadow-xl border border-slate-700">
+                <div class="flex justify-between items-end mb-6">
+                    <h2 class="font-bold text-slate-300">ADVERTISING TASKS</h2>
+                    <span class="text-xs text-slate-500"><span id="clickCount" class="text-blue-400">0</span> / 3000 Daily</span>
+                </div>                
+                <button onclick="startTask('PREMIUM')" class="w-full bg-blue-600 hover:bg-blue-500 py-4 rounded-xl font-bold mb-4 flex justify-between px-6 items-center shadow-lg shadow-blue-900/20">
+                    <div class="text-left">
+                        <p class="text-xs opacity-70">Task 01</p>
+                        <p>PREMIUM ADS 1</p>
+                    </div>
+                    <i class="fas fa-crown text-xl"></i>
                 </button>
-                <button onclick="startTask('TURBO ADS 2')" class="ad-btn w-full bg-purple-600 hover:bg-purple-700 py-4 rounded-lg font-bold flex justify-between px-6 items-center">
-                    <span>TURBO ADS 2</span>
-                    <i class="fas fa-bolt"></i>
+
+                <button onclick="startTask('TURBO')" class="w-full bg-indigo-600 hover:bg-indigo-500 py-4 rounded-xl font-bold flex justify-between px-6 items-center shadow-lg shadow-indigo-900/20">
+                    <div class="text-left">
+                        <p class="text-xs opacity-70">Task 02</p>
+                        <p>TURBO ADS 2</p>
+                    </div>
+                    <i class="fas fa-bolt text-xl"></i>
                 </button>
-                <p class="text-[10px] mt-4 text-gray-400">Clicks today: <span id="clickCount">0</span>/10</p>
+                <div id="cooldownDiv" class="hidden mt-4 text-center text-red-400 text-sm font-bold animate-pulse">Cooldown: <span id="cdTimer">5:00</span></div>
             </div>
         </section>
 
-        <!-- Withdraw Section -->
-        <section id="withdrawSection" class="section-content hidden-section">
-            <div class="bg-gray-800 p-6 rounded-xl">
-                <h3 class="font-bold mb-4 border-b pb-2">WITHDRAW</h3>
-                <label class="block text-xs mb-1">Method</label>
-                <select id="wdMethod" class="w-full bg-gray-700 p-2 rounded mb-4">
+        <!-- WITHDRAW -->
+        <section id="withdrawSection" class="section-content">
+            <div class="bg-slate-800 p-6 rounded-2xl border border-slate-700 mb-6">
+                <h3 class="font-bold text-lg mb-4">REQUEST PAYOUT</h3>
+                <select id="wdMethod" class="w-full bg-slate-900 p-3 rounded-lg mb-4 border border-slate-700">
                     <option value="GCash">GCash</option>
                     <option value="FaucetPay">FaucetPay</option>
                     <option value="PayPal">PayPal</option>
                 </select>
-                <label class="block text-xs mb-1">Account/Address</label>
-                <input type="text" id="wdAccount" placeholder="Enter details" class="w-full bg-gray-700 p-2 rounded mb-4">
-                <p class="text-xs text-gray-400 mb-4 italic">Min: 0.02 USDT</p>
-                <button onclick="requestWithdraw()" class="w-full bg-green-600 py-2 rounded font-bold">Submit Request</button>
+                <input type="text" id="wdAccount" placeholder="Wallet Address / Number" class="w-full bg-slate-900 p-3 rounded-lg mb-4 border border-slate-700">
+                <p class="text-[10px] text-slate-500 mb-4 tracking-wider">MINIMUM WITHDRAWAL: 0.02000 USDT</p>
+                <button onclick="requestWithdraw()" class="w-full bg-green-600 py-3 rounded-lg font-bold">WITHDRAW NOW</button>
             </div>
-            <div class="mt-6 bg-gray-800 p-4 rounded-xl">
-                <h4 class="text-sm font-bold mb-2">History</h4>
-                <div id="wdHistory" class="text-xs space-y-2"></div>
-            </div>
+            <div id="wdHistory" class="space-y-2"></div>
         </section>
 
-        <!-- Referral Section -->
-        <section id="referralSection" class="section-content hidden-section text-center">
-            <div class="bg-gray-800 p-6 rounded-xl">
-                <h3 class="font-bold mb-2">REFERRAL SYSTEM</h3><p class="text-xs text-gray-400 mb-4">Earn 12% bonus from your referrals</p>
-                <div class="bg-gray-900 p-3 rounded font-mono text-xl mb-4 border border-dashed border-blue-500" id="myRefCode">------</div>
+        <!-- REFERRAL -->
+        <section id="referralSection" class="section-content">
+            <div class="bg-slate-800 p-6 rounded-2xl text-center border border-slate-700">
+                <h3 class="font-bold mb-2">PARTNER PROGRAM</h3>
+                <p class="text-xs text-slate-400 mb-6">Earn 12% lifetime commission from referral clicks</p>
+                <div id="myRefCode" class="bg-slate-900 p-4 rounded-xl border-2 border-dashed border-slate-700 text-2xl font-mono text-blue-400 mb-6 tracking-widest cursor-pointer">------</div>
                 <div class="flex gap-2 mb-6">
-                    <input type="text" id="inputRef" placeholder="Paste 6-digit code" class="flex-1 bg-gray-700 p-2 rounded text-sm">
-                    <button onclick="submitReferral()" class="bg-blue-600 px-4 rounded text-sm">Bind</button>
+                    <input type="text" id="inputRef" placeholder="Enter Invite Code" class="flex-1 bg-slate-900 p-3 rounded-lg text-sm border border-slate-700">
+                    <button onclick="submitReferral()" class="bg-blue-600 px-6 rounded-lg font-bold">BIND</button>
                 </div>
-                <div class="grid grid-cols-2 gap-4 border-t pt-4 border-gray-700">
-                    <div>
-                        <p class="text-xs">Total Refs</p>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-slate-900 p-3 rounded-lg">
+                        <p class="text-[10px] text-slate-500 uppercase">Total Referrals</p>
                         <p id="totalRefs" class="text-xl font-bold">0</p>
                     </div>
-                    <div>
-                        <p class="text-xs">Earned</p>
+                    <div class="bg-slate-900 p-3 rounded-lg">
+                        <p class="text-[10px] text-slate-500 uppercase">Referral Earnings</p>
                         <p id="totalRefEarned" class="text-xl font-bold text-yellow-500">0.00</p>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Admin Section -->
-        <section id="adminSection" class="section-content hidden-section">
-            <div class="bg-red-900/20 border border-red-500 p-4 rounded-xl mb-6">
-                <h3 class="font-bold mb-4">ADMIN PANEL</h3>
-                <div id="adminWithdrawals" class="space-y-4">
-                    <!-- Dynamic Withdrawal Requests -->
+        <!-- SETTINGS -->
+        <section id="settingsSection" class="section-content">
+            <div class="bg-slate-800 p-6 rounded-2xl border border-slate-700">
+                <h3 class="font-bold mb-6">CUSTOMIZATION</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="text-xs text-slate-400 block mb-2">BACKGROUND COLOR</label>
+                        <input type="color" id="colorBg" onchange="updateColors()" class="w-full h-12 bg-transparent">
+                    </div>
+                    <div>
+                        <label class="text-xs text-slate-400 block mb-2">ACCENT COLOR</label>
+                        <input type="color" id="colorAccent" onchange="updateColors()" class="w-full h-12 bg-transparent">
+                    </div>
                 </div>
             </div>
-            <div class="bg-gray-800 p-4 rounded-xl">
-                <h4 class="font-bold mb-2">User Management</h4>
-                <input type="text" id="banUserId" placeholder="User ID to ban" class="w-full bg-gray-700 p-2 rounded mb-2 text-sm">
-                <button onclick="banUser()" class="w-full bg-red-600 py-1 rounded text-sm">Ban User</button>
-            </div>
         </section>
 
-        <!-- Customization Section -->
-        <section id="settingsSection" class="section-content hidden-section">
-            <div class="bg-gray-800 p-6 rounded-xl">
-                <h3 class="font-bold mb-4">CUSTOMIZE DISPLAY</h3>
-                <label class="block text-sm mb-2">Background Color</label>
-                <input type="color" id="bgColorPicker" onchange="updateTheme()" class="w-full h-10 rounded mb-4">
-                <label class="block text-sm mb-2">Accent Color</label>
-                <input type="color" id="accentColorPicker" onchange="updateTheme()" class="w-full h-10 rounded">
+        <!-- ADMIN -->
+        <section id="adminSection" class="section-content">
+            <div class="bg-red-900/10 border border-red-500/30 p-4 rounded-2xl">
+                <h3 class="text-red-500 font-black mb-4 flex items-center"><i class="fas fa-shield-alt mr-2"></i> MASTER CONTROL</h3>
+                <div id="adminWithdrawals" class="space-y-4 mb-6"></div>
+                <hr class="border-red-900/30 my-6">
+                <h4 class="text-xs font-bold text-slate-400 mb-2">RESTRICT USER</h4><div class="flex gap-2">
+                    <input type="text" id="banId" placeholder="User ID" class="flex-1 bg-slate-900 p-2 rounded text-sm">
+                    <button onclick="processBan()" class="bg-red-600 px-4 rounded text-xs">BAN</button>
+                </div>
             </div>
         </section>
-
     </main>
 
-    <!-- Ad Timer Modal -->
-    <div id="adModal" class="fixed inset-0 bg-black/95 z-[2000] hidden flex items-center justify-center p-6 text-center">
+    <!-- Ad Overlay -->
+    <div id="adModal" class="fixed inset-0 bg-slate-950 z-[2000] hidden flex items-center justify-center p-8 text-center">
         <div>
-            <h2 class="text-2xl font-bold text-blue-400 mb-2">Watching Ad...</h2>
-            <div id="timerDisplay" class="text-6xl font-black mb-6">20</div>
-            <p class="text-gray-400 animate-pulse">Do not close this window</p>
-            <button id="claimBtn" onclick="claim()" class="hidden w-full bg-green-600 py-4 rounded-xl font-bold text-xl mt-6">CLAIM REWARD</button>
+            <div class="w-24 h-24 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-8"></div>
+            <h2 class="text-3xl font-black mb-2">SECURE VIEWING</h2>
+            <p class="text-slate-400 mb-8">Earning reward in progress...</p>
+            <div id="timerDisplay" class="text-7xl font-black text-blue-500">20</div>
+            <div id="claimContainer" class="hidden mt-10">
+                <button onclick="claimReward()" class="bg-green-600 hover:bg-green-500 text-white px-12 py-4 rounded-2xl font-black text-xl shadow-xl shadow-green-900/40">CLAIM 0.00014 USDT</button>
+            </div>
         </div>
     </div>
 
-    <!-- Footer -->
-    <footer class="fixed bottom-0 w-full glass p-3 text-center text-[10px] text-gray-400">
-        <p>© PAPERHOUSE CORPORATION | <span id="footerDateTime"></span></p>
+    <!-- Reward Popup Modal -->
+    <div id="rewardModal" class="fixed inset-0 z-[3000] hidden flex items-center justify-center p-6 bg-slate-950/90">
+        <div class="bg-slate-800 p-8 rounded-3xl border border-blue-500/50 max-w-sm text-center reward-popup shadow-2xl">
+            <div class="w-20 h-20 bg-green-500/20 text-green-500 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h3 class="text-2xl font-black mb-2">CONGRATULATIONS!</h3>
+            <p class="text-green-400 font-bold mb-4">+0.00014 USDT CREDITED</p>
+            <div class="bg-slate-900/50 p-4 rounded-xl italic text-slate-300 text-sm mb-6 border-l-4 border-blue-500">
+                "<span id="quoteText">Loading quote...</span>"
+            </div>
+            <button onclick="closeReward()" class="w-full bg-blue-600 py-4 rounded-xl font-bold">KEEP EARNING & INVITING</button>
+        </div>
+    </div>
+
+    <footer class="fixed bottom-0 w-full glass p-3 text-center text-[10px] text-slate-500 z-40">
+        <p>© PAPERHOUSE CORPORATION | <span id="footerClock"></span></p>
     </footer>
 
     <script src="app.js"></script>
