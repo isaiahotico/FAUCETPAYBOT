@@ -203,7 +203,7 @@ function loadAdminData() {
             let d = c.val();
             if(d.status === 'pending') {
                 h += `<div class="bg-slate-900 p-3 rounded-lg border border-red-900/30 text-xs">
-                    <p><b>${d.user}</b> (${d.method})</p>
+                    <p><b>${d.user}</b> (${d.method})</p>   <div class="flex justify-between font-black text-white"><span>${d.amount} USDT</span><span>${d.method}</span></div>
                     <p class="text-slate-400">${d.account}</p>
                     <div class="mt-2 flex gap-2">
                         <button onclick="updateWd('${c.key}', 'approved')" class="bg-green-600 px-3 py-1 rounded">Approve</button>
